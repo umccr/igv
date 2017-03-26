@@ -115,9 +115,9 @@ abstract public class BaseAlignmentCounts implements AlignmentCounts {
      */
     public void incCounts(Alignment alignment) {
 
-        if (bisulfiteCounts != null) {
-            bisulfiteCounts.incrementCounts(alignment);
-        }
+//        if (bisulfiteCounts != null) {
+//            bisulfiteCounts.incrementCounts(alignment);
+//        }
 
         int alignmentStart = alignment.getAlignmentStart();
         int alignmentEnd = alignment.getAlignmentEnd();
@@ -128,16 +128,20 @@ abstract public class BaseAlignmentCounts implements AlignmentCounts {
         if (blocks != null) {
             int lastBlockEnd = -1;
 
-            for (AlignmentBlock b : blocks) {
-                if (b.getEnd() < start) continue;
-                if (b.getStart() > end) break;
+            try {
+                for (AlignmentBlock b : blocks) {
+                    if (b.getEnd() < start) continue;
+                    if (b.getStart() > end) break;
 
-                //Strand strand = alignment.getFirstOfPairStrand();
+                    //Strand strand = alignment.getFirstOfPairStrand();
 
-                // Don't count softclips
-                if (!b.isSoftClipped() && strand != Strand.NONE) {
-                    incBlockCounts(b, isNegativeStrand);
+                    // Don't count softclips
+                    if (!b.isSoftClipped() && strand != Strand.NONE) {
+                        incBlockCounts(b, isNegativeStrand);
+                    }
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
 
             // Count deletions

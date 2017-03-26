@@ -34,6 +34,7 @@ import org.broad.igv.Globals;
 import org.broad.igv.feature.LocusScore;
 import org.broad.igv.feature.Strand;
 import org.broad.igv.track.WindowFunction;
+import org.broad.igv.util.ByteArray;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -397,8 +398,13 @@ public class ReducedMemoryAlignment implements Alignment {
         }
 
         @Override
-        public byte[] getBases() {
+        public ByteArray getBases() {
             return null;
+        }
+
+        @Override
+        public boolean hasQualities() {
+            return false;
         }
 
         @Override
@@ -412,7 +418,7 @@ public class ReducedMemoryAlignment implements Alignment {
         }
 
         @Override
-        public byte[] getQualities() {
+        public ByteArray getQualities() {
             return null;
         }
 

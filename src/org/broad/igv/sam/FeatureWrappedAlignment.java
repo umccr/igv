@@ -63,8 +63,7 @@ public class FeatureWrappedAlignment implements Alignment {
             int i = 0;
             for (Exon exon : f.getExons()) {
                 int length = exon.getLength();
-                byte[] seq = new byte[length];
-                blocks[i] = new AlignmentBlockImpl(exon.getStart(), seq, seq);
+                blocks[i] = new AlignmentBlockImpl(exon.getStart(), length);
                 i++;
             }
         }

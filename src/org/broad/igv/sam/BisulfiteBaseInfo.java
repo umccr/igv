@@ -50,10 +50,10 @@ public class BisulfiteBaseInfo {
     }
 
     // Constants
-    public static Color CYTOSINE_MISMATCH_COLOR = new Color(139, 94, 60); // Brown 
-    public static Color NONCYTOSINE_MISMATCH_COLOR = new Color(139, 94, 60); // Brown 
-    public static Color DEAMINATION_COLOR = new Color(139, 94, 60); // Brown 
-    // Color.BLACK; // Like to make this brown but it doesn't scale with quality // 
+    public static Color CYTOSINE_MISMATCH_COLOR = new Color(139, 94, 60); // Brown
+    public static Color NONCYTOSINE_MISMATCH_COLOR = new Color(139, 94, 60); // Brown
+    public static Color DEAMINATION_COLOR = new Color(139, 94, 60); // Brown
+    // Color.BLACK; // Like to make this brown but it doesn't scale with quality //
     public static Color METHYLATED_COLOR = Color.red;
     public static Color UNMETHYLATED_COLOR = Color.blue;
 
@@ -79,7 +79,7 @@ public class BisulfiteBaseInfo {
         super();
 
         myContext = bisulfiteContext;
-        byte[] inRead = block.getBases();
+        byte[] inRead = block.getBases().getBytes();
         if (inRead != null) {
             int alignmentLen = inRead.length;
 

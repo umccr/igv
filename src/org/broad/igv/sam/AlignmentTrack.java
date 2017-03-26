@@ -2486,7 +2486,7 @@ public class AlignmentTrack extends AbstractTrack implements IGVEventObserver {
 
             addCopySequenceItem();
 
-            if (insertion.getBases() != null && insertion.getBases().length > 10) {
+            if (insertion.getBases() != null && insertion.getBases().length() > 10) {
                 addBlatItem();
             }
         }
@@ -2496,7 +2496,7 @@ public class AlignmentTrack extends AbstractTrack implements IGVEventObserver {
             // Change track height by attribute
             final JMenuItem item = new JMenuItem("Copy insert sequence");
             add(item);
-            item.addActionListener(aEvt -> StringUtils.copyTextToClipboard(new String(insertion.getBases())));
+            item.addActionListener(aEvt -> StringUtils.copyTextToClipboard(insertion.getBases().getString()));
         }
 
 
@@ -2507,7 +2507,7 @@ public class AlignmentTrack extends AbstractTrack implements IGVEventObserver {
 
 
             item.addActionListener(aEvt -> {
-                String blatSeq = new String(insertion.getBases());
+                String blatSeq = insertion.getBases().getString();
                 BlatClient.doBlatQuery(blatSeq);
             });
         }

@@ -126,7 +126,7 @@ public class InsertionManager {
             if (blocks != null) {
                 for (AlignmentBlock block : blocks) {
 
-                    if (block.getBases().length < minLength) continue;
+                    if (block.getBases().length() < minLength) continue;
 
                     Integer key = block.getStart();
                     InsertionMarker insertionMarker = insertionMap.get(key);

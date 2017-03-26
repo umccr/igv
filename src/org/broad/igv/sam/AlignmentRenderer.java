@@ -42,6 +42,7 @@ import org.broad.igv.sam.BisulfiteBaseInfo.DisplayStatus;
 import org.broad.igv.track.RenderContext;
 import org.broad.igv.ui.FontManager;
 import org.broad.igv.ui.color.*;
+import org.broad.igv.util.ByteArray;
 import org.broad.igv.util.ChromosomeColors;
 
 import java.awt.*;
@@ -404,7 +405,7 @@ public class AlignmentRenderer {
                         continue;
                     }
 
-                    int bpWidth = aBlock.getBases().length;
+                    int bpWidth = aBlock.getBases().length();
                     double pxWidthExact = ((double) bpWidth) / locScale;
                     int h = (int) Math.max(1, rect.getHeight() - 2);
                     int y = (int) (rect.getY() + (rect.getHeight() - h) / 2) - 1;
@@ -925,11 +926,11 @@ public class AlignmentRenderer {
             return;
         }
 
-        byte[] read;
+        ByteArray read;
         if (haveBases) {
             read = block.getBases();
         } else {
-            read = reference;
+            read = new ByteArray(reference);
         }
 
 
@@ -957,7 +958,7 @@ public class AlignmentRenderer {
 
             if (showAllBases || (!bisulfiteMode && misMatch) ||
                     (bisulfiteMode && (!DisplayStatus.NOTHING.equals(bisinfo.getDisplayStatus(idx))))) {
-                char c = (char) read[idx];
+                char c = (char) read.get(idx);
 
                 Color color = nucleotideColors.get(c);
                 if (bisulfiteMode) color = bisinfo.getDisplayColor(idx);
@@ -1123,7 +1124,7 @@ public class AlignmentRenderer {
                 if(aBlock.getStart() == expandedPosition) continue;   // Skip, will be drawn expanded
 
                 int x = (int) ((aBlock.getStart() - origin) / locScale);
-                int bpWidth = aBlock.getBases().length;
+                int bpWidth = aBlock.getBases().length();
                 double pxWidthExact = ((double) bpWidth) / locScale;
                 int h = (int) Math.max(1, rect.getHeight() - (leaveMargin ? 2 : 0));
                 int y = (int) (rect.getY() + (rect.getHeight() - h) / 2) - (leaveMargin ? 1 : 0);
@@ -1171,7 +1172,7 @@ public class AlignmentRenderer {
                                             boolean leaveMargin) {
 
         Graphics2D g = context.getGraphics2D("INSERTIONS");
-        byte[] bases = block.getBases();
+        ByteArray bases = block.getBases();
         int padding = block.getPadding();
 
         double locScale = context.getScale();
@@ -1182,10 +1183,10 @@ public class AlignmentRenderer {
         int dY = (int) rect.getHeight();
         int dX = (int) Math.max(1, (1.0 / locScale));
 
-        final int size = bases.length + padding;
+        final int size = bases.length() + padding;
         for (int p = 0; p < size; p++) {
 
-            char c = p < padding ? '-' : (char) bases[p - padding];
+            char c = p < padding ? '-' : (char) bases.get(p - padding);
 
             Color color = SequenceRenderer.nucleotideColors.get(c);
             if (color == null) {

@@ -26,6 +26,8 @@
 package org.broad.igv.sam;
 
 
+import org.broad.igv.util.ByteArray;
+
 /**
  * @author Jim Robinson
  * @date 12/6/11
@@ -40,7 +42,7 @@ public class AlignmentUtils {
     public static final byte C = 'C';
     public static final byte G = 'G';
     public static final byte T = 'T';
-    
+
     /**
      * Return true if the two bases can be considered a match.  The comparison is case-insensitive, and
      * considers ambiguity codes in the reference.
@@ -106,19 +108,19 @@ public class AlignmentUtils {
      * @param idx
      * @return
      */
-    static boolean isMisMatch(byte[] reference, byte[] read, boolean isSoftClipped, int idx){
+    static boolean isMisMatch(byte[] reference, ByteArray read, boolean isSoftClipped, int idx){
         if(reference == null) return false;
         boolean misMatch = false;
         if (isSoftClipped) {
             // Goby will return '=' characters when the soft-clip happens to match the reference.
             // It could actually be useful to see which part of the soft clipped bases match, to help detect
             // cases when an aligner clipped too much.
-            final byte readbase = read[idx];
+            final byte readbase = read.get(idx);
             misMatch = readbase != '=';  // mismatch, except when the soft-clip has an '=' base.
         } else {
             final int referenceLength = reference.length;
             final byte refbase = idx < referenceLength ? reference[idx] : 0;
-            final byte readbase = read[idx];
+            final byte readbase = read.get(idx);
             misMatch = readbase != '=' &&
                     idx < referenceLength &&
                     refbase != 0 &&

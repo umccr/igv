@@ -214,7 +214,7 @@ public class GobyAlignmentQueryReaderTest extends AbstractHeadlessTest{
         GobyAlignment gAlignment = new MockGobyAlignment(entry);
         gAlignment.buildBlocks(entry);
         assertEquals(1, gAlignment.block.length);
-        assertEquals(50, gAlignment.block[0].getBases().length);
+        assertEquals(50, gAlignment.block[0].getBases().length());
     }
 
     @Test
@@ -229,7 +229,7 @@ public class GobyAlignmentQueryReaderTest extends AbstractHeadlessTest{
                 gAlignment = new MockGobyAlignment(entry);
         gAlignment.buildBlocks(entry);
         assertEquals(1, gAlignment.block.length);
-        assertEquals(30, gAlignment.block[0].getBases().length);
+        assertEquals(30, gAlignment.block[0].getBases().length());
     }
 
     @Test
@@ -243,7 +243,7 @@ public class GobyAlignmentQueryReaderTest extends AbstractHeadlessTest{
                 gAlignment = new MockGobyAlignment(entry);
         gAlignment.buildBlocks(entry);
         assertEquals(1, gAlignment.block.length);
-        assertEquals(30, gAlignment.block[0].getBases().length);
+        assertEquals(30, gAlignment.block[0].getBases().length());
     }
 
     @Test
@@ -262,7 +262,7 @@ public class GobyAlignmentQueryReaderTest extends AbstractHeadlessTest{
         assertEquals(1, gAlignment.insertionBlock.length);
         assertEquals(1010, gAlignment.insertionBlock[0].getStart());
         // the aligned block is 50-2 because the 2 bases are in their own insertion block.
-        assertEquals(48, gAlignment.block[0].getBases().length);
+        assertEquals(48, gAlignment.block[0].getBases().length());
     }
 
     @Test
@@ -278,8 +278,8 @@ public class GobyAlignmentQueryReaderTest extends AbstractHeadlessTest{
                 gAlignment = new MockGobyAlignment(entry);
         gAlignment.buildBlocks(entry);
         assertEquals(2, gAlignment.block.length);
-        assertEquals(9, gAlignment.block[0].getBases().length);
-        assertEquals(41, gAlignment.block[1].getBases().length);
+        assertEquals(9, gAlignment.block[0].getBases().length());
+        assertEquals(41, gAlignment.block[1].getBases().length  ());
     }
 
     @Test
@@ -326,8 +326,8 @@ public class GobyAlignmentQueryReaderTest extends AbstractHeadlessTest{
                 gAlignment = new MockGobyAlignment(entry);
         gAlignment.buildBlocks(entry);
         assertEquals(2, gAlignment.block.length);
-        assertEquals(24, gAlignment.block[0].getBases().length);
-        assertEquals(16, gAlignment.block[1].getBases().length);
+        assertEquals(24, gAlignment.block[0].getBases().length());
+        assertEquals(16, gAlignment.block[1].getBases().length());
     }
 
 
@@ -381,8 +381,8 @@ public class GobyAlignmentQueryReaderTest extends AbstractHeadlessTest{
         for (GobyAlignment align : visitedEntries) {
             if (index == 0) {
                 assertEquals(2, align.block.length);
-                assertEquals(20, align.block[0].getBases().length);
-                assertEquals(30, align.block[1].getBases().length);
+                assertEquals(20, align.block[0].getBases().length());
+                assertEquals(30, align.block[1].getBases().length());
 
             }
             if (index == 1) {
@@ -407,7 +407,7 @@ public class GobyAlignmentQueryReaderTest extends AbstractHeadlessTest{
 
         Assert.assertEquals(2 + (showSoftClipped ? 1 : 0), igvAlignment.getAlignmentBlocks().length);
         Assert.assertEquals("==A====G===GA=====T============================================",
-                basesToText(igvAlignment.getAlignmentBlocks()[1 + (showSoftClipped ? 1 : 0)].getBases()));
+                basesToText(igvAlignment.getAlignmentBlocks()[1 + (showSoftClipped ? 1 : 0)].getBases().getBytes()));
         iter.close();
         reader.close();
 

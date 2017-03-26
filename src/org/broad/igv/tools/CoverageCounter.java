@@ -35,6 +35,7 @@ import org.broad.igv.sam.*;
 import org.broad.igv.sam.reader.AlignmentReader;
 import org.broad.igv.sam.reader.AlignmentReaderFactory;
 import org.broad.igv.tools.parsers.DataConsumer;
+import org.broad.igv.util.ByteArray;
 
 import java.io.*;
 import java.util.*;
@@ -387,12 +388,12 @@ public class CoverageCounter {
                                     adjustedEnd = Math.min(queryInterval.getEnd(), adjustedEnd);
                                 }
 
-                                byte[] bases = block.getBases();
+                                ByteArray bases = block.getBases();
                                 for (int pos = adjustedStart; pos < adjustedEnd; pos++) {
                                     byte base = 0;
                                     int baseIdx = pos - blockStart;
-                                    if (bases != null && baseIdx >= 0 && baseIdx < bases.length) {
-                                        base = bases[baseIdx];
+                                    if (bases != null && baseIdx >= 0 && baseIdx < bases.length()) {
+                                        base = bases.get(baseIdx);
                                     }
                                     //int idx = pos - blockStart;
                                     //byte quality = (idx >= 0 && idx < block.qualities.length) ?

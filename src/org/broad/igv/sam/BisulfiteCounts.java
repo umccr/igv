@@ -25,6 +25,7 @@
 
 package org.broad.igv.sam;
 
+import org.apache.log4j.Logger;
 import org.broad.igv.feature.genome.Genome;
 
 import java.util.HashMap;
@@ -35,6 +36,8 @@ import java.util.Map;
  * @date 2/6/12
  */
 public class BisulfiteCounts {
+
+    private static Logger log = Logger.getLogger(BisulfiteCounts.class);
 
     public static final AlignmentTrack.BisulfiteContext[] NOMESEQ_CONTEXTS =
             {AlignmentTrack.BisulfiteContext.HCG, AlignmentTrack.BisulfiteContext.GCH};
@@ -51,6 +54,8 @@ public class BisulfiteCounts {
     }
 
     public void incrementCounts(Alignment baseAlignment) {
+
+        log.info("Increment counts");
 
         // Only works with block formats
         if(baseAlignment.getAlignmentBlocks() == null) return;
@@ -78,7 +83,7 @@ public class BisulfiteCounts {
                     AlignmentUtils.reverseComplementCopy(inReference) :
                     inReference);
 
-            byte[] inRead = block.getBases();
+            byte[] inRead = block.getBases().getBytes();
             byte[] read = (flipRead) ? AlignmentUtils.reverseComplementCopy(inRead) : inRead;
 
             int alignmentLen = inRead.length;

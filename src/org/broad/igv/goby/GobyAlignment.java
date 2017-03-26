@@ -41,6 +41,7 @@ import org.broad.igv.prefs.Constants;
 import org.broad.igv.prefs.PreferencesManager;
 import org.broad.igv.sam.*;
 import org.broad.igv.track.WindowFunction;
+import org.broad.igv.util.ByteArray;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -296,7 +297,7 @@ public class GobyAlignment implements Alignment {
             bases[i] = (byte) softClippedBasesLeft.charAt(i);
             scores[i] = hasSoftClippedQuality ? softClippedQuality[i] : readQualScores[j++];
         }
-        final AlignmentBlockImpl alignmentBlock = new AlignmentBlockImpl( position, bases, scores);
+        final AlignmentBlockImpl alignmentBlock = new AlignmentBlockImpl( position, new ByteArray(bases), new ByteArray(scores));
         alignmentBlock.setSoftClipped(true);
         blocks.add(alignmentBlock);
 
@@ -354,25 +355,34 @@ public class GobyAlignment implements Alignment {
                     final int vrPos = var.getPosition() + entry.getPosition();
                     if (hasReadDeletion(var) && vrPos >= block.getStart() && vrPos <= block.getEnd()) {
 
-                        ByteList leftBases = new ByteArrayList(block.getBases());
-                        ByteList leftScores = new ByteArrayList(block.getQualities());
-                        ByteList rightBases = new ByteArrayList(block.getBases());
-                        ByteList rightScores = new ByteArrayList(block.getQualities());
                         int deletionPosition = var.getPosition() - 1;
-                        leftBases = leftBases.subList(0, deletionPosition);
-                        rightBases = rightBases.subList(deletionPosition, rightBases.size());
 
-                        leftScores = leftScores.subList(0, deletionPosition);
-                        rightScores = rightScores.subList(deletionPosition, rightScores.size());
+                        ByteArray leftBases = null;
+                        ByteArray rightBases = null;
+                        if(block.hasBases()) {
+                            leftBases =  block.getBases().subArray(0, deletionPosition);
+                            rightBases = block.getBases().subArray(deletionPosition);
+                        }
 
-                        AlignmentBlock left = new AlignmentBlockImpl(block.getStart(),
-                                leftBases.toByteArray(new byte[leftBases.size()]),
-                                leftScores.toByteArray(new byte[leftScores.size()]));
+                        ByteArray leftScores = null;
+                        ByteArray rightScores = null;
+                        if(block.hasQualities()) {
+                            leftScores = block.getQualities().subArray(0, deletionPosition);
+                            rightScores = block.getQualities().subArray(deletionPosition);
+                        }
 
-                        AlignmentBlock right = new AlignmentBlockImpl(block.getStart() + leftBases.size()
-                                + var.getFrom().length(),
-                                rightBases.toByteArray(new byte[rightBases.size()]),
-                                rightScores.toByteArray(new byte[rightScores.size()]));
+                        AlignmentBlock left;
+                        AlignmentBlock right;
+                        if(block.hasBases()) {
+                            left = new AlignmentBlockImpl(block.getStart(), leftBases, leftScores);
+                            right = new AlignmentBlockImpl(block.getStart() + leftBases.length() + var.getFrom().length(),
+                                    rightBases,
+                                    rightScores);
+                        }
+                        else {
+                            left = new AlignmentBlockImpl(block.getStart(), deletionPosition);
+                            right = new AlignmentBlockImpl(block.getStart() + deletionPosition, block.getLength() - deletionPosition);
+                        }
 
                         blocks.remove(block);
                         newBlocks.add(left);
@@ -397,8 +407,8 @@ public class GobyAlignment implements Alignment {
 
         blocks.add(
                 new AlignmentBlockImpl(start,
-                        bases.toByteArray(new byte[bases.size()]),
-                        scores.toByteArray(new byte[scores.size()])));
+                        new ByteArray(bases.toByteArray(new byte[bases.size()])),
+                        new ByteArray(scores.toByteArray(new byte[scores.size()]))));
         start += bases.size();
         bases.clear();
         scores.clear();

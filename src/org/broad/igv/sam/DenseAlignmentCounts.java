@@ -26,6 +26,7 @@
 package org.broad.igv.sam;
 
 import org.apache.log4j.Logger;
+import org.broad.igv.util.ByteArray;
 
 /**
  * @author jrobinso
@@ -320,14 +321,15 @@ public class DenseAlignmentCounts extends BaseAlignmentCounts {
 
     protected void incBlockCounts(AlignmentBlock block, boolean isNegativeStrand) {
         int start = block.getStart();
-        byte[] bases = block.getBases();
+        ByteArray bases = block.getBases();
         if (bases != null) {
-            for (int i = 0; i < bases.length; i++) {
+            final int length = bases.length();
+            for (int i = 0; i < length; i++) {
                 int pos = start + i;
                 // NOTE:  the direct access block.qualities is intentional,  profiling reveals this to be a critical bottleneck
-                byte q = ((AlignmentBlockImpl) block).qualities[i];
+                byte q = block.getQuality(i);
                 // TODO -- handle "=" in cigar string with no read bases
-                byte n = bases[i];
+                byte n = bases.get(i);
                 incPositionCount(pos, n, q, isNegativeStrand);
             }
         }

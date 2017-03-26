@@ -27,6 +27,7 @@ package org.broad.igv.sam;
 
 import org.broad.igv.feature.LocusScore;
 import org.broad.igv.feature.Strand;
+import org.broad.igv.util.ByteArray;
 import org.junit.Test;
 
 /**
@@ -42,7 +43,7 @@ public class BisulfiteBaseInfoTest {
         byte [] ref = {(byte) 'C', (byte) 'G'};
         byte [] read = {(byte) 'C', (byte) 'G'};
         TestAlignment testAlignment = new TestAlignment();
-        AlignmentBlock block = new AlignmentBlockImpl(0, read, null);
+        AlignmentBlock block = new AlignmentBlockImpl(0, new ByteArray(read), null);
         BisulfiteBaseInfo bbi = new BisulfiteBaseInfo(ref, testAlignment, block, context);
 
     }

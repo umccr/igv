@@ -29,24 +29,33 @@
  */
 package org.broad.igv.sam;
 
+import org.broad.igv.util.ByteArray;
+
 public class AlignmentBlockImpl implements AlignmentBlock {
 
     private int start;
-    private byte[] bases;
+    private ByteArray bases;
     private int basesLength = -1;
-    public byte[] qualities;
+    private ByteArray qualities;
     private boolean softClipped = false;
     private int pixelStart;
     private int pixelEnd;
     private int padding = 0;
 
 
-    public AlignmentBlockImpl(int start, byte[] bases, byte[] qualities) {
+    public AlignmentBlockImpl(int start, ByteArray bases, ByteArray qualities) {
 
         this.start = start;
         this.bases = bases;
-        this.basesLength = bases.length;
+        this.basesLength = bases.length();
         this.qualities = qualities;
+    }
+
+    public AlignmentBlockImpl(int start, int length) {
+
+        this.start = start;
+        this.basesLength = length;
+        this.padding = 0;
     }
 
     @Override
@@ -78,7 +87,7 @@ public class AlignmentBlockImpl implements AlignmentBlock {
 
     @Override
     public byte getBase(int offset) {
-        return bases != null && offset < bases.length ? bases[offset] : 0;
+        return bases != null && offset < bases.length() ? bases.get(offset) : 0;
     }
 
     /**
@@ -87,8 +96,13 @@ public class AlignmentBlockImpl implements AlignmentBlock {
      * @return
      */
     @Override
-    public byte[] getBases() {
+    public ByteArray getBases() {
         return bases;
+    }
+
+    @Override
+    public boolean hasQualities() {
+        return qualities != null;
     }
 
     @Override
@@ -98,12 +112,12 @@ public class AlignmentBlockImpl implements AlignmentBlock {
 
     @Override
     public byte getQuality(int offset) {
-        return qualities == null || offset >= qualities.length ? (byte) 126 : qualities[offset];
+        return qualities == null || offset >= qualities.length() ? (byte) 126 : qualities.get(offset);
 
     }
 
     @Override
-    public byte[] getQualities() {
+    public ByteArray getQualities() {
         return qualities;
     }
 
@@ -131,8 +145,8 @@ public class AlignmentBlockImpl implements AlignmentBlock {
         sb.append("-");
         sb.append(getEnd());
         sb.append(" ");
-        for (int i = 0; i < bases.length; i++) {
-            sb.append((char) bases[i]);
+        for (int i = 0; i < bases.length(); i++) {
+            sb.append((char) bases.get(i));
         }
         sb.append("]");
         return sb.toString();

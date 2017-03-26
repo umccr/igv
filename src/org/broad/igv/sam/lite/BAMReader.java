@@ -10,6 +10,7 @@ import org.broad.igv.feature.genome.Genome;
 import org.broad.igv.sam.*;
 import org.broad.igv.sam.ReadMate;
 import org.broad.igv.sam.reader.AlignmentReader;
+import org.broad.igv.util.ByteArray;
 import org.broad.igv.util.ParsingUtils;
 import org.broad.igv.util.stream.IGVSeekableStreamFactory;
 
@@ -197,8 +198,7 @@ public class BAMReader implements AlignmentReader<Alignment> {
                         if (chunks.hasNext()) {
                             BAMIndex.Chunk c = chunks.next();
                             currentChunkAlignments = readAlignments(c, chrId, start, end).iterator();
-                        }
-                        else {
+                        } else {
                             break;
                         }
                     }
@@ -482,9 +482,9 @@ public class BAMReader implements AlignmentReader<Alignment> {
         int seqOffset = 0;
         int pos = alignment.start;
         int len = cigarArray.length;
-        byte[] blockSeq;
+        ByteArray blockSeq;
         char gapType;
-        byte[] blockQuals;
+        ByteArray blockQuals;
 //                    gapType,
 //                    minQ = 5,  //prefs.getAsInt(PreferenceManager.SAM_BASE_QUALITY_MIN)
 //                    maxQ = 20; //prefs.getAsInt(PreferenceManager.SAM_BASE_QUALITY_MAX)
@@ -492,6 +492,7 @@ public class BAMReader implements AlignmentReader<Alignment> {
         for (int i = 0; i < len; i++) {
 
             CigarOperator c = cigarArray[i];
+            AlignmentBlock block;
 
             switch (c.letter) {
                 case 'H':
@@ -511,22 +512,34 @@ public class BAMReader implements AlignmentReader<Alignment> {
                     gapType = 'D';
                     break;
                 case 'I':
-                    blockSeq = alignment.sequence.length == 1 ? alignment.sequence : Arrays.copyOfRange(alignment.sequence, seqOffset, seqOffset + c.length);
-                    blockQuals = alignment.qualities == null ? null : Arrays.copyOfRange(alignment.qualities, seqOffset, seqOffset + c.length);
-                    if (insertions == null) {
-                        insertions = new ArrayList<>();
-                    }
-                    insertions.add(new AlignmentBlockImpl(pos, blockSeq, blockQuals));
-                    seqOffset += c.length;
-                    break;
                 case 'M':
                 case '=':
                 case 'X':
-                    blockSeq = alignment.sequence.length == 1 ? alignment.sequence : Arrays.copyOfRange(alignment.sequence, seqOffset, seqOffset + c.length);
-                    blockQuals = alignment.qualities == null ? null : Arrays.copyOfRange(alignment.qualities, seqOffset, seqOffset + c.length);
-                    blocks.add(new AlignmentBlockImpl(pos, blockSeq, blockQuals));
-                    seqOffset += c.length;
-                    pos += c.length;
+                    if (alignment.sequence.length == 0 || (alignment.sequence.length == 1 && alignment.sequence[0] == '*')) {
+                        block = new AlignmentBlockImpl(seqOffset, c.length);
+                    } else {
+                        blockSeq = new ByteArray(alignment.sequence, seqOffset, c.length);
+
+                        if (alignment.qualities.length ==0 || (alignment.qualities.length == 1 && alignment.qualities[0] == '*')) {
+                            blockQuals = null;
+                        } else {
+                            blockQuals = new ByteArray(alignment.qualities, seqOffset, c.length);
+                        }
+                        block = new AlignmentBlockImpl(pos, blockSeq, blockQuals);
+                    }
+
+                    if (c.letter == 'I') {
+                        if (insertions == null) {
+                            insertions = new ArrayList<>();
+                        }
+                        insertions.add(block);
+                        seqOffset += c.length;
+                    } else {
+                        blocks.add(block);
+                        seqOffset += c.length;
+                        pos += c.length;
+                    }
+
                     break;
 
                 default:

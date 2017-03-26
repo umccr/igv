@@ -26,35 +26,39 @@
 package org.broad.igv.sam;
 
 import org.broad.igv.feature.genome.Genome;
+import org.broad.igv.util.ByteArray;
 
 /**
  * Created by jrobinso on 9/22/15.
  */
 public interface AlignmentBlock {
 
-    boolean contains(int position);
-
-    int getLength();
-
-    byte getBase(int offset);
-
-    byte[] getBases();
 
     int getStart();
 
-    byte getQuality(int offset);
-
-    byte[] getQualities();
-
     int getEnd();
 
-    boolean isSoftClipped();
+    int getLength();
 
     boolean hasBases();
+
+    byte getBase(int offset);
+
+    ByteArray getBases();
+
+    boolean hasQualities();
+
+    ByteArray getQualities();
+
+    byte getQuality(int offset);
+
+    boolean isSoftClipped();
 
     void setPixelRange(int s, int e);
 
     boolean containsPixel(int x) ;
+
+    boolean contains(int position);
 
     default int getPadding() {
         return 0;
