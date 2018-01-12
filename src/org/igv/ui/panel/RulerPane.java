@@ -182,7 +182,6 @@ public class RulerPane extends ContentPane {
         int nTick = (int) (frame.getOrigin() / spacing) - 1;
         double l = (int) (nTick * spacing);
         double x = frame.getScreenPosition(l - 1 + 0.5);    // 0 vs 1 based coordinates, then center over base
-        //int strEnd = Integer.MIN_VALUE;
 
         Text sizer = new Text("");
         sizer.setFont(graphicsContext.getFont());
@@ -193,7 +192,6 @@ public class RulerPane extends ContentPane {
                     " " + ts.getMajorUnit();
             double strWidth = FontMetrics.getTextWidthInFont(chrPosition, sizer);
             double strPosition = x - strWidth / 2;
-            //if (strPosition > strEnd) {
 
             final double height = getPrefHeight();
             if (nTick % 2 == 0) {
@@ -309,7 +307,7 @@ public class RulerPane extends ContentPane {
     }
 
     private void resetTooltipHandlers() {
-        // Comment/uncomment the setOnMouseEntered() and setOnMouseExited calls below to compare
+        // Comment/uncomment the setOnMouseEntered() and the setOnMouseExited calls below to compare
         // with the cursor timing hack in IGVBackendPlaceholder.  These should be commented out
         // if that hack is active (and vice versa).
         if (frame.isWholeGenomeView()) {
@@ -343,6 +341,11 @@ public class RulerPane extends ContentPane {
     };
 
     private final EventHandler<MouseEvent> wgViewMouseMovedHandler = (event) -> {
+        Bounds bounds = this.getBoundsInLocal();
+        if (!bounds.contains(event.getX(), event.getY())) {
+            return;
+        }
+
         for (ClickLink link : chromosomeRects) {
             if (link.region.contains(event.getX(), event.getY())) {
                 // Don't make any changes if the tooltip text is already set for this link.region

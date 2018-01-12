@@ -35,8 +35,8 @@ import org.broad.igv.prefs.IGVPreferences;
 import org.broad.igv.prefs.PreferencesManager;
 import org.broad.igv.session.Session.GeneListMode;
 import org.broad.igv.ui.Main.IGVArgs;
-import org.igv.ui.panel.MainContentPane;
 import org.broad.igv.ui.panel.FrameManager;
+import org.igv.ui.panel.MainContentPane;
 
 import java.io.IOException;
 
@@ -75,7 +75,7 @@ public class IGVBackendPlaceholder {
         // Comment/uncomment the following to experiment with the global Tooltip duration setting
         // hack.  Be sure to *also* adjust the MouseEnter/Exit handling code in the RulerPane for
         // comparison.  It should not be present if the line below is active (and vice versa).
-        JavaFXUIUtilities.setTooltipTimers(50, 60000, 50, false);
+        JavaFXUIUtilities.setTooltipTimers(50, 60000, 50, true);
     }
 
     public static final Font getFont(FontWeight fontWeight, double size) {
