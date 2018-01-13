@@ -31,6 +31,7 @@ import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.apache.log4j.Logger;
+import org.igv.Stub;
 import org.igv.ui.panel.MainContentPane;
 import org.broad.igv.util.FileUtils;
 
@@ -40,7 +41,7 @@ import java.io.File;
 // Will add event handlers (or at least stubs) for all of the included controls.
 public class IGVMenuBarManager {
     private static Logger log = Logger.getLogger(IGVMenuBarManager.class);
-    
+
     private MenuBar menuBar;
 
     // Keep as instance var for later break-out of actions, etc from constructor.
@@ -57,14 +58,13 @@ public class IGVMenuBarManager {
 
         // TODO: add actions to all of these MenuItems
         MenuItem loadFromFile = new MenuItem("Load from File ...");
-        loadFromFile.setOnAction(new EventHandler<ActionEvent>() {
-
-            @Override
-            public void handle(ActionEvent actionEvent) {
-                // Testing a FileChooser but with no real action
-                FileChooser fileChooser = new FileChooser();
-                fileChooser.setTitle("Choose a file");
-                fileChooser.showOpenDialog(stage);
+        loadFromFile.setOnAction(actionEvent -> {
+            // Testing a FileChooser but with no real action
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Choose a file");
+            File selected = fileChooser.showOpenDialog(stage);
+            if(selected != null) {
+                Stub.loadFile(selected);
             }
         });
         MenuItem loadFromURL = new MenuItem("Load from URL ...");
@@ -72,35 +72,32 @@ public class IGVMenuBarManager {
         MenuItem loadFromGa4gh = new MenuItem("Load from Ga4gh ...");
         MenuItem newSession = new MenuItem("New Session ...");
         MenuItem openSession = new MenuItem("Open Session ...");
-        openSession.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent actionEvent) {
-                // TODO: file filtering?
-                FileChooser fileChooser = new FileChooser();
-                fileChooser.setTitle("Choose a session file");
-                File selected = fileChooser.showOpenDialog(stage);
-                if (selected != null) {
-                    String sessionFile = selected.getAbsolutePath();
-                    log.info("About to load session");
-                    if (sessionFile != null) {
-                        if (FileUtils.isRemote(sessionFile)) {
-                            // TODO: we are not really dealing with the Session yet, so this is a placeholder for now.
-                            //boolean merge = false;
-                            //IGV.getInstance().doRestoreSession(sessionFile, null, merge);
-                        } else {
-                            File f = new File(sessionFile);
-                            //IGV.getInstance().doRestoreSession(f, null);
-                        }
+        openSession.setOnAction(actionEvent -> {
+            // TODO: file filtering?
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Choose a session file");
+            File selected = fileChooser.showOpenDialog(stage);
+            if (selected != null) {
+                String sessionFile = selected.getAbsolutePath();
+                log.info("About to load session");
+                if (sessionFile != null) {
+                    if (FileUtils.isRemote(sessionFile)) {
+                        // TODO: we are not really dealing with the Session yet, so this is a placeholder for now.
+                        //boolean merge = false;
+                        //IGV.getInstance().doRestoreSession(sessionFile, null, merge);
+                    } else {
+                        File f = new File(sessionFile);
+                        //IGV.getInstance().doRestoreSession(f, null);
                     }
-                    log.info("Session loading underway");
                 }
+                log.info("Session loading underway");
             }
         });
         MenuItem saveSession = new MenuItem("Save Session ...");
         MenuItem saveImage = new MenuItem("Save Image ...");
         MenuItem exit = new MenuItem("Exit");
         exit.setOnAction(e -> Platform.exit());
-        
+
         Menu fileMenu = new Menu("File", null, loadFromFile, loadFromURL, loadFromServer, loadFromGa4gh,
                 new SeparatorMenuItem(), newSession, openSession, saveSession, new SeparatorMenuItem(), saveImage,
                 new SeparatorMenuItem(), exit);
@@ -117,16 +114,12 @@ public class IGVMenuBarManager {
         MenuItem colorLegends = new MenuItem("Color Legends ...");
         CheckMenuItem showNamePanel = new CheckMenuItem("Show Name Panel");
         showNamePanel.setSelected(true);
-        showNamePanel.setOnAction(new EventHandler<ActionEvent>() {
-
-            @Override
-            public void handle(ActionEvent event) {
-                if (mainContentPane != null) {
-                    if (mainContentPane.isNamePanelHidden()) {
-                        mainContentPane.showNamePanel();
-                    } else {
-                        mainContentPane.hideNamePanel();
-                    }
+        showNamePanel.setOnAction(event -> {
+            if (mainContentPane != null) {
+                if (mainContentPane.isNamePanelHidden()) {
+                    mainContentPane.showNamePanel();
+                } else {
+                    mainContentPane.hideNamePanel();
                 }
             }
         });
