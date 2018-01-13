@@ -211,7 +211,7 @@ public class ParsingUtilsTest extends AbstractHeadlessTest {
             }
         };
 
-        //ParsingUtils.split seems to be about 2x as fast, that is
+        //ColorUtils.split seems to be about 2x as fast, that is
         //takes 1/2 the time
         Function<String, Void> parsingUtilsPredicate = new Function<String, Void>() {
             String[] buffer = new String[20];
@@ -228,7 +228,7 @@ public class ParsingUtilsTest extends AbstractHeadlessTest {
         TestUtils.timeMethod(supplier, patternSplitPredicate, nTrials);
 
         supplier.reset();
-        System.out.println("\nParsingUtils.split");
+        System.out.println("\nColorUtils.split");
         TestUtils.timeMethod(supplier, parsingUtilsPredicate, nTrials);
     }
 
@@ -254,7 +254,7 @@ public class ParsingUtilsTest extends AbstractHeadlessTest {
             }
         };
 
-        //ParsingUtils.split seems to be about 2x as fast, that is
+        //ColorUtils.split seems to be about 2x as fast, that is
         //takes 1/2 the time
         Function<String[], Void> stringAddFunc = new Function<String[], Void>() {
             @Override
@@ -270,7 +270,7 @@ public class ParsingUtilsTest extends AbstractHeadlessTest {
 
                 return null;
 
-                //String res = htsjdk.tribble.util.ParsingUtils.join(sdelim, input);
+                //String res = htsjdk.tribble.util.ColorUtils.join(sdelim, input);
                 //return true;
             }
         };

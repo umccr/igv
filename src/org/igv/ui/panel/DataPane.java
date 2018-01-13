@@ -26,6 +26,7 @@ package org.igv.ui.panel;
 
 import javafx.event.EventHandler;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import org.apache.log4j.Logger;
@@ -48,12 +49,63 @@ public class DataPane extends ContentPane {
 
     private void init() {
 
-        this.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                render();
+        this.setOnMouseReleased(new EventHandler <MouseEvent>()
+        {
+            public void handle(MouseEvent event)
+            {
+                System.out.println("Event on Source: mouse released");
             }
         });
+
+        this.setOnMouseDragged(new EventHandler <MouseEvent>()
+        {
+            public void handle(MouseEvent event)
+            {
+                System.out.println("Event on Source: mouse dragged");
+            }
+        });
+
+        this.setOnDragDetected(new EventHandler <MouseEvent>()
+        {
+            public void handle(MouseEvent event)
+            {
+                System.out.println("Event on Source: drag detected");
+            }
+        });
+
+        // Add mouse event handlers for the target
+        this.setOnMouseDragEntered(new EventHandler <MouseDragEvent>()
+        {
+            public void handle(MouseDragEvent event)
+            {
+                System.out.println("Event on Target: mouse dragged");
+            }
+        });
+
+        this.setOnMouseDragOver(new EventHandler <MouseDragEvent>()
+        {
+            public void handle(MouseDragEvent event)
+            {
+                System.out.println("Event on Target: mouse drag over");
+            }
+        });
+
+        this.setOnMouseDragReleased(new EventHandler <MouseDragEvent>()
+        {
+            public void handle(MouseDragEvent event)
+            {
+                System.out.println("Event on Target: mouse drag released");
+            }
+        });
+
+        this.setOnMouseDragExited(new EventHandler <MouseDragEvent>()
+        {
+            public void handle(MouseDragEvent event)
+            {
+                System.out.println("Event on Target: mouse drag exited");
+            }
+        });
+
 
     }
 
