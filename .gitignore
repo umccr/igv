@@ -3,3 +3,4 @@
 *.jar
 igv.sh
 /out/
+.gradle/**

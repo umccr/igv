@@ -1,0 +1,60 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+dependencies {
+    compile fileTree(dir: 'lib', include: '*.jar')
+    testCompile fileTree(dir: 'test/lib', include: '*.jar')
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+// Define the main class for the application
+mainClassName = 'org.igv.ui.MainApplication'
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src']
+        }
+        resources {
+            srcDirs = ['src']
+        }
+    }
+    test {
+        java {
+            srcDirs = ['test/src']
+        }
+    }
+}
+
+jar {
+    manifest {
+        attributes(
+            "Permissions": "all-permissions",
+            "Application-Name": "IGV",
+            "Built-By": System.getProperty('user.name'),
+            "Main-Class": mainClassName,
+            "Class-Path": configurations.compile.collect { it.getName() }.join(' ')
+        )
+        // TODO: conditionally build Class-Path for either unified JAR or slim JAR
+        //"Class-Path": ${class-path}
+        // TODO: Need to add our custom manifest section
+    }
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+tasks.withType(Test) {
+    systemProperties = System.getProperties()
+    systemProperties['java.awt.headless'] = 'true'
+    systemProperties['file.encoding'] = 'UTF-8'
+    systemProperties['make.fail'] = 'false'
+    systemProperties['include.longrunning'] = 'false'
+    systemProperties['ignore.ioexceptions'] = 'false'
+    maxHeapSize = '2000m'
+    jvmArgs '-javaagent:test/lib/JavaAgent.jar'
+    forkEvery = 1
+}
