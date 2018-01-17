@@ -1,6 +1,9 @@
 package org.igv;
 
 
+import org.broad.igv.util.ResourceLocator;
+import org.igv.feature.FeatureTrack;
+
 import java.io.File;
 
 /**
@@ -11,9 +14,19 @@ import java.io.File;
  */
 public class Stub {
 
+    public static FeatureTrack theTrack;
 
     public static void loadFile(File file) {
-        System.out.println("Loading " + file.getAbsolutePath());
+
+
+        if(file.getAbsolutePath().endsWith(".bed")) {
+
+            theTrack = new FeatureTrack(new ResourceLocator(file.getAbsolutePath()));
+
+        }
+        else {
+            System.out.println("Unsupported file format: " + file.getAbsolutePath());
+        }
     }
 
     public static void loadURL(String url,  String indexURL) {

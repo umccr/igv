@@ -20,7 +20,7 @@ public class FeatureReaderTest {
     @Test
     public void testBed() throws Exception {
 
-        String testFile = "test/datafx/feature/bed12.bed.txt";
+        String testFile = "test/datafx/feature/bed12.bed";
 
         FeatureReader reader = FeatureReaderFactory.getReader(new ResourceLocator(testFile));
 

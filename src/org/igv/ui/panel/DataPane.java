@@ -31,9 +31,14 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import org.apache.log4j.Logger;
 import org.broad.igv.ui.panel.ReferenceFrame;
+import org.igv.Stub;
+import org.igv.feature.FeatureTrack;
 
 // Intended as the rough equivalent of the DataPanel class of the Swing UI.  Work in progress.
 public class DataPane extends ContentPane {
+
+    // TODO -- a DataPane needs a track.
+
     private static Logger log = Logger.getLogger(DataPane.class);
     
     private DataPaneContainer parent;
@@ -62,7 +67,9 @@ public class DataPane extends ContentPane {
             public void handle(MouseEvent event)
             {
                 System.out.println("Event on Source: mouse dragged");
+                render();
             }
+
         });
 
         this.setOnDragDetected(new EventHandler <MouseEvent>()
@@ -110,9 +117,16 @@ public class DataPane extends ContentPane {
     }
 
     protected void render() {
+
         GraphicsContext gc = getCanvas().getGraphicsContext2D();
 
-        gc.setFill(Color.BLUE);
-        gc.fillRect(75,75,100,100);
+        // TODO -- this should be a member variable of the data pane
+        FeatureTrack track = Stub.theTrack;
+        if(track != null) {
+
+            track.draw(gc, this.frame);
+
+        }
+
     }
 }
