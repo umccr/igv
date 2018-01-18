@@ -3,7 +3,12 @@ apply plugin: 'application'
 
 dependencies {
     compile fileTree(dir: 'lib', include: '*.jar')
+    compile fileTree(dir: 'ant', include: 'bcel-6.0.jar')
     testCompile fileTree(dir: 'test/lib', include: '*.jar')
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '4.4.1'
 }
 
 sourceCompatibility = 1.8
@@ -11,22 +16,6 @@ targetCompatibility = 1.8
 
 // Define the main class for the application
 mainClassName = 'org.igv.ui.MainApplication'
-
-sourceSets {
-    main {
-        java {
-            srcDirs = ['src']
-        }
-        resources {
-            srcDirs = ['src']
-        }
-    }
-    test {
-        java {
-            srcDirs = ['test/src']
-        }
-    }
-}
 
 jar {
     manifest {
@@ -43,18 +32,38 @@ jar {
     }
 }
 
-tasks.withType(JavaCompile) {
-    options.encoding = 'UTF-8'
-}
-
 tasks.withType(Test) {
     systemProperties = System.getProperties()
     systemProperties['java.awt.headless'] = 'true'
-    systemProperties['file.encoding'] = 'UTF-8'
     systemProperties['make.fail'] = 'false'
     systemProperties['include.longrunning'] = 'false'
     systemProperties['ignore.ioexceptions'] = 'false'
     maxHeapSize = '2000m'
     jvmArgs '-javaagent:test/lib/JavaAgent.jar'
     forkEvery = 1
+}
+
+task prepare(type: Copy) {
+        //into 'build/jarSlim'
+        def libJars = fileTree(dir: 'lib', includes: ['*.jar'], excludes: ['batik-codec__V1.7.jar', 'goby-io-igv__V1.0.jar', 'junit*.jar'])
+        //libJars.each { File file -> println file }
+        libJars.each {
+            File file -> copy {
+                from zipTree(file)
+                exclude 'META-INF/**'
+                into 'build/jarSlim'
+            }
+        }
+}
+
+task jarSlim(dependsOn: [classes, jar, prepare]) {
+    doLast {
+    
+        ant.jar(destfile: 'build/lib/tmp.jar', basedir: 'build/classes/java/main') {
+            classfileset(dir: 'build/classes/java/main') {
+                rootfileset(dir: 'build/classes/java/main', includes: ['**.class']) 
+            }
+            fileset(dir: 'build/resources/main')
+        }
+    }
 }
