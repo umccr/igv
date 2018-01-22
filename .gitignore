@@ -9,7 +9,6 @@ igv.iml
 .classpath
 igv.log
 tmp/**
-javafx_port*/**
 IGV-dist/**
 .gradle/*
 build/*

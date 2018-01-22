@@ -63,8 +63,8 @@ public class MainContentPane extends BorderPane {
 
     private DoubleProperty namePaneWidthProp = new SimpleDoubleProperty(
             PreferencesManager.getPreferences().getAsFloat(NAME_PANEL_WIDTH));
-    // TODO: find the proper sizing for the attribute panels
     private DoubleProperty attributePaneWidthProp = new SimpleDoubleProperty(20);
+    private DoubleProperty axisPaneWidthProp = new SimpleDoubleProperty(10);
     private final Map<String, TrackRow> trackRowByName = new HashMap<String, TrackRow>();
 
     private IGVToolBarManager igvToolBarManager;
@@ -146,6 +146,10 @@ public class MainContentPane extends BorderPane {
 
     public DoubleProperty attributePaneWidthProperty() {
         return attributePaneWidthProp;
+    }
+
+    public DoubleProperty axisPaneWidthProperty() {
+        return axisPaneWidthProp;
     }
 
     public void hideNamePanel() {

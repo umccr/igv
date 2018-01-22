@@ -71,13 +71,19 @@
   -fx-border-color: rgb(102, 102, 102);
 }
 
-AttributeHeaderPane {
+HeaderAttributePane {
   -fx-border-style: solid;
   -fx-border-insets: 2;
   -fx-border-color: rgb(0, 0, 0);
 }
 
-NameHeaderPane {
+HeaderAxisPane {
+  -fx-border-style: solid;
+  -fx-border-insets: 2;
+  -fx-border-color: rgb(0, 0, 0);
+}
+
+HeaderNamePane {
   -fx-border-style: solid;
   -fx-border-insets: 2;
   -fx-border-color: rgb(0, 0, 0);
@@ -108,6 +114,12 @@ TrackNamePane {
 }
 
 AttributePane {
+  -fx-border-style: solid;
+  -fx-border-insets: 2;
+  -fx-border-color: rgb(102, 102, 102);
+}
+
+AxisPane {
   -fx-border-style: solid;
   -fx-border-insets: 2;
   -fx-border-color: rgb(102, 102, 102);

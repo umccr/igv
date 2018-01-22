@@ -24,20 +24,12 @@
  */
 package org.igv.ui.panel;
 
-import javafx.scene.control.ScrollPane;
+import org.igv.ui.ResizableCanvas;
 
-// Intended as the rough equivalent of the IGVPanel class of the Swing UI, subclassed for handling the Header.  Work in progress.
-public class HeaderRow extends IGVRow<HeaderNamePane, HeaderAttributePane, HeaderAxisPane, HeaderPaneContainer, ScrollPane> {
-    public HeaderRow(MainContentPane mainContentPane) {
-        // TODO: determine correct header height setting
-        double headerHeight = 140.0;
-        this.prefHeightProperty().set(headerHeight);
-        ScrollPane scrollPane = new ScrollPane(this);
-        scrollPane.setId("headerRowScrollPane");
-        HeaderNamePane namePane = new HeaderNamePane();
-        HeaderAttributePane attributePane = new HeaderAttributePane();
-        HeaderAxisPane axisPane = new HeaderAxisPane();
-        HeaderPaneContainer headerPaneContainer = new HeaderPaneContainer();
-        init(mainContentPane, namePane, attributePane, axisPane, headerPaneContainer, scrollPane);
+// Intended as the rough equivalent of the NameHeaderPanel class of the Swing UI.  Work in progress.
+public class HeaderNamePane extends ResizableCanvas {
+
+    public HeaderNamePane() {
     }
+
 }

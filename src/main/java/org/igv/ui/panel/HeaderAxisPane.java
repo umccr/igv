@@ -26,10 +26,9 @@ package org.igv.ui.panel;
 
 import org.igv.ui.ResizableCanvas;
 
-// Intended as the rough equivalent of the NameHeaderPanel class of the Swing UI.  Work in progress.
-public class NameHeaderPane extends ResizableCanvas {
+public class HeaderAxisPane extends ResizableCanvas {
 
-    public NameHeaderPane() {
+    public HeaderAxisPane() {
     }
 
 }

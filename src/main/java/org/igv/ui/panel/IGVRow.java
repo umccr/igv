@@ -31,14 +31,15 @@ import javafx.scene.layout.Pane;
 import org.igv.ui.JavaFXUIUtilities;
 
 // Intended as the rough equivalent of the IGVPanel class of the Swing UI.  Work in progress.
-// Note: N, A, C might need to become more specific types later (e.g. RowComponent).  Pane is general enough for now.
-public class IGVRow<N extends Pane, A extends Pane, C extends Pane, S extends ScrollPane> extends HBox {
+// Note: N, A, X, C might need to become more specific types later (e.g. RowComponent).  Pane is general enough for now.
+public class IGVRow<N extends Pane, A extends Pane, X extends Pane, C extends Pane, S extends ScrollPane> extends HBox {
 
     private static final double INSET_SPACING = 5;
 
     private MainContentPane mainContentPane;
     private N namePane;
     private A attributePane;
+    private X axisPane;
     private C contentContainer;
     private S scrollPane;
 
@@ -46,11 +47,11 @@ public class IGVRow<N extends Pane, A extends Pane, C extends Pane, S extends Sc
         super(INSET_SPACING);
     }
 
-    protected void init(MainContentPane mainContentPane, N namePane, A attributePane, C contentContainer, S scrollPane) {
-
+    protected void init(MainContentPane mainContentPane, N namePane, A attributePane, X axisPane, C contentContainer, S scrollPane) {
         this.mainContentPane = mainContentPane;
         this.namePane = namePane;
         this.attributePane = attributePane;
+        this.axisPane = axisPane;
         this.contentContainer = contentContainer;
         this.scrollPane = scrollPane;
 
@@ -67,15 +68,18 @@ public class IGVRow<N extends Pane, A extends Pane, C extends Pane, S extends Sc
         JavaFXUIUtilities.bindWidthToProperty(attributePane, mainContentPane.attributePaneWidthProperty());
         JavaFXUIUtilities.bindHeightToContainer(this, attributePane);
 
+        JavaFXUIUtilities.bindWidthToProperty(axisPane, mainContentPane.axisPaneWidthProperty());
+        JavaFXUIUtilities.bindHeightToContainer(this, axisPane);
+
         // The contentContainer should take the rest of the space.  That is:
-        // total width - (name pane width + attr pane width + (2 * insets) + scrollbar width)
+        // total width - (name pane width + attr + axis pane width + (2 * insets) + scrollbar width)
         contentContainer.prefWidthProperty().bind(this.prefWidthProperty()
-                .subtract(mainContentPane.namePaneWidthProperty()
-                        .add(mainContentPane.attributePaneWidthProperty()).add(2 * INSET_SPACING + 30)));
+                .subtract(mainContentPane.namePaneWidthProperty().add(mainContentPane.attributePaneWidthProperty().add(mainContentPane.axisPaneWidthProperty())).add(2 * INSET_SPACING + 30)));
         JavaFXUIUtilities.bindHeightToContainer(this, contentContainer);
         
         getChildren().add(namePane);
         getChildren().add(attributePane);
+        getChildren().add(axisPane);
         getChildren().add(contentContainer);
 
         JavaFXUIUtilities.bindWidthToContainer(mainContentPane, this);
@@ -83,6 +87,7 @@ public class IGVRow<N extends Pane, A extends Pane, C extends Pane, S extends Sc
         backgroundProperty().bind(mainContentPane.backgroundProperty());
         namePane.backgroundProperty().bind(mainContentPane.backgroundProperty());
         attributePane.backgroundProperty().bind(mainContentPane.backgroundProperty());
+        axisPane.backgroundProperty().bind(mainContentPane.backgroundProperty());
         contentContainer.backgroundProperty().bind(mainContentPane.backgroundProperty());
     }
 
@@ -96,6 +101,10 @@ public class IGVRow<N extends Pane, A extends Pane, C extends Pane, S extends Sc
 
     public A getAttributePane() {
         return attributePane;
+    }
+
+    public X getAxisPane() {
+        return axisPane;
     }
 
     public C getContentContainer() {
