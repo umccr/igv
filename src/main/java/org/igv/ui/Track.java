@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2007-2017 Broad Institute
+ * Copyright (c) 2007-2018 Broad Institute
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,15 +22,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.igv.ui.panel;
+package org.igv.ui;
 
-import javafx.scene.layout.Pane;
+import javafx.scene.canvas.GraphicsContext;
+import org.broad.igv.ui.panel.ReferenceFrame;
 
-// Intended as the rough equivalent of the TrackPanelComponent class of the Swing UI.  Work in progress.
-// Unused at this time; may not be needed
-public class TrackRowComponent extends Pane {
-
-    public TrackRowComponent() {
-    }
-
+public interface Track {
+    public void draw(GraphicsContext ctx, ReferenceFrame frame);
 }

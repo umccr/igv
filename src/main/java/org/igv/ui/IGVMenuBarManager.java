@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2007-2017 Broad Institute
+ * Copyright (c) 2007-2018 Broad Institute
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -57,12 +57,16 @@ public class IGVMenuBarManager {
         // TODO: add actions to all of these MenuItems
         MenuItem loadFromFile = new MenuItem("Load from File ...");
         loadFromFile.setOnAction(actionEvent -> {
-            // Testing a FileChooser but with no real action
+            // TODO: file filtering?
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Choose a file");
             File selected = fileChooser.showOpenDialog(stage);
             if(selected != null) {
                 Stub.loadFile(selected);
+
+                // Name is not correct; just using for now for mock-up purposes.
+                String name = selected.getName();
+                mainContentPane.addTrackRow(name, Stub.theTrack);
             }
         });
         MenuItem loadFromURL = new MenuItem("Load from URL ...");
@@ -77,7 +81,6 @@ public class IGVMenuBarManager {
             File selected = fileChooser.showOpenDialog(stage);
             if (selected != null) {
                 String sessionFile = selected.getAbsolutePath();
-                log.info("About to load session");
                 if (sessionFile != null) {
                     if (FileUtils.isRemote(sessionFile)) {
                         // TODO: we are not really dealing with the Session yet, so this is a placeholder for now.
@@ -88,7 +91,6 @@ public class IGVMenuBarManager {
                         //IGV.getInstance().doRestoreSession(f, null);
                     }
                 }
-                log.info("Session loading underway");
             }
         });
         MenuItem saveSession = new MenuItem("Save Session ...");

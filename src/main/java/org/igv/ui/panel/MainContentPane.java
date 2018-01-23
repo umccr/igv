@@ -24,31 +24,23 @@
  */
 package org.igv.ui.panel;
 
-import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
-import javafx.scene.control.SplitPane;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import org.apache.log4j.Logger;
 import org.broad.igv.prefs.PreferencesManager;
-import org.broad.igv.ui.IGV;
 import org.broad.igv.ui.panel.FrameManager;
 import org.igv.ui.IGVToolBarManager;
+import org.igv.ui.Track;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
 
-import static org.broad.igv.prefs.Constants.*;
+import static org.broad.igv.prefs.Constants.BACKGROUND_COLOR;
+import static org.broad.igv.prefs.Constants.NAME_PANEL_WIDTH;
 
 // Intended as the rough equivalent of the MainPanel class of the Swing UI.  Work in progress.
 public class MainContentPane extends BorderPane {
@@ -56,15 +48,15 @@ public class MainContentPane extends BorderPane {
     
     // Probably most/all components should be instance vars.  Will migrate as need arises.
     private HeaderRow headerRow = null;
-    private TrackRow featureTrackRow = null;
-    private TrackScrollPane featureTrackScrollPane = null;
-    private TrackRow dataTrackRow = null;
-    private SplitPane centerSplitPane;
+    private VBox trackContainer = new VBox();
 
     private DoubleProperty namePaneWidthProp = new SimpleDoubleProperty(
             PreferencesManager.getPreferences().getAsFloat(NAME_PANEL_WIDTH));
     private DoubleProperty attributePaneWidthProp = new SimpleDoubleProperty(20);
     private DoubleProperty axisPaneWidthProp = new SimpleDoubleProperty(10);
+
+    // May not be needed.  Not used for now but created for managing tracks by name (change order, remove, etc).
+    // I *think* it will still be needed but some other means might present itself.
     private final Map<String, TrackRow> trackRowByName = new HashMap<String, TrackRow>();
 
     private IGVToolBarManager igvToolBarManager;
@@ -89,53 +81,22 @@ public class MainContentPane extends BorderPane {
 
         headerRow = new HeaderRow(this);
         this.setTop(headerRow.getScrollPane());
-        
-        centerSplitPane = new SplitPane();
-        centerSplitPane.setOrientation(Orientation.VERTICAL);
-
-        this.setCenter(centerSplitPane);
+        this.setCenter(trackContainer);
 
         Color bgColor = PreferencesManager.getPreferences().getAsJavaFxColor(BACKGROUND_COLOR);
         Background background = new Background(new BackgroundFill(bgColor, CornerRadii.EMPTY, Insets.EMPTY));
-
         this.backgroundProperty().set(background);
-
-        dataTrackRow = addTrackRow(IGV.DATA_PANEL_NAME);
-
-        if (!PreferencesManager.getPreferences().getAsBoolean(SHOW_SINGLE_TRACK_PANE_KEY)) {
-            featureTrackRow = addTrackRow(IGV.FEATURE_PANEL_NAME);
-            featureTrackScrollPane = featureTrackRow.getScrollPane();
-
-            centerSplitPane.setDividerPositions(0.9);
-        }
-
-        // For now, just setting a dummy height for the first one; fix this later when we get to dynamically
-        // adding TrackRows.
-        dataTrackRow.prefHeightProperty().set(200);
         
         this.resetContent();
     }
 
 
     // The following should only be called within Platform.runLater() or otherwise on the Application thread
-    public TrackRow addTrackRow(String name) {
-        TrackRow trackRow = new TrackRow(name, this);
-        TrackScrollPane trackScrollPane = new TrackScrollPane(trackRow);
+    public TrackRow addTrackRow(String name, Track track) {
+        TrackRow trackRow = new TrackRow(name, track, this);
+        TrackScrollPane trackScrollPane = trackRow.getScrollPane();
         trackRowByName.put(name, trackRow);
-
-        int featurePaneIdx = -1;
-        if (featureTrackScrollPane != null) {
-            featurePaneIdx = centerSplitPane.getItems().indexOf(featureTrackScrollPane);
-        }
-
-        if (featurePaneIdx > 0) {
-            centerSplitPane.getItems().add(featurePaneIdx, trackScrollPane);
-        } else {
-            centerSplitPane.getItems().add(trackScrollPane);
-        }
-
-        // TODO: need to deal with centerSplitPane divider positions and properly sizing new TrackRows here.        
-        
+        trackContainer.getChildren().add(trackScrollPane);
         return trackRow;
     }
     
@@ -173,66 +134,26 @@ public class MainContentPane extends BorderPane {
     }
 
     public void resetContent() {
-        // Incomplete implementation for now
         HeaderPaneContainer headerPaneContainer = headerRow.getContentContainer();
-        DataPaneContainer dataPaneContainer = dataTrackRow.getContentContainer();
-        FrameManager.totalDisplayWidthProperty().bind(headerPaneContainer.prefWidthProperty());
         headerPaneContainer.frameSpacingProperty().bind(FrameManager.frameSpacingProperty());
-        dataPaneContainer.frameSpacingProperty().bind(FrameManager.frameSpacingProperty());
+        FrameManager.totalDisplayWidthProperty().bind(headerPaneContainer.prefWidthProperty());
+
         FrameManager.computeFrameBounds();
         headerPaneContainer.createHeaderPanes();
-        dataPaneContainer.createDataPanes();
-        // TODO: deal with Tracks, etc.
-    }
-    
-    public void resetTrackRows() {
-        for (TrackRow trackRow : getAllTrackRows()) {
-            trackRow.clearTracks();
-            if (trackRow != featureTrackRow && trackRow != dataTrackRow) {
-                centerSplitPane.getItems().remove(trackRow.getScrollPane());
-            }
-        }
-        trackRowByName.clear();
-        if (featureTrackRow != null) {
-            trackRowByName.put(IGV.FEATURE_PANEL_NAME, featureTrackRow);
-        }
-        if (dataTrackRow != null) {
-            trackRowByName.put(IGV.DATA_PANEL_NAME, dataTrackRow);
-            dataTrackRow.reset();
+
+        for (TrackRow trackRow : trackRowByName.values()) {
+            DataPaneContainer dataPaneContainer = trackRow.getContentContainer();
+            dataPaneContainer.frameSpacingProperty().bind(FrameManager.frameSpacingProperty());
+            dataPaneContainer.createDataPanes();
         }
     }
-    
+
+    // Not presently used; was again anticipated for TrackRow management
     public TrackRow getTrackRow(String name) {
         TrackRow row = trackRowByName.get(name);
         if (row != null) {
             return row;
         }
-
-        // If we get this far this is a new row
-        FutureTask<TrackRow> trackRowCreator = new FutureTask<TrackRow>(new Callable<TrackRow>() {
-            @Override
-            public TrackRow call() throws Exception {
-                return addTrackRow(name);
-            }
-        });
-        
-        Platform.runLater(trackRowCreator);
-        try {
-            return trackRowCreator.get();
-        }
-        catch (ExecutionException | InterruptedException e) {
-            // TODO: better error handling.  Prob need equivalent of MessageUtils.showMessage() 
-            log.error(e);
-            throw new RuntimeException(e);
-        }
-    }
-    
-    // Not yet used; anticipated...
-    public void setDividerLocations(double[] fractions) {
-        centerSplitPane.setDividerPositions(fractions);
-    }
-
-    public double[] getDividerLocations() {
-        return centerSplitPane.getDividerPositions();
+        return null;
     }
 }
