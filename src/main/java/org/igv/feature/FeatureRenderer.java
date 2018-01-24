@@ -80,38 +80,40 @@ public class FeatureRenderer {
                 int ePx1 = (int) Math.round((exon.getEnd() - bpStart) / xScale);
                 int ePw = Math.max(1, ePx1 - ePx);
 
-                if (exon.isUtr()) {
-                    ctx.fillRect(ePx, py2, ePw, h2); // Entire exon is UTR
-                } else {
-                    if (exon.getCdStart() > bpStart) {
-                        int ePxU = (int) Math.round((exon.getCdStart() - bpStart) / xScale);
-                        ctx.fillRect(ePx, py2, ePxU - ePx, h2); // start is UTR
-                        ePw -= (ePxU - ePx);
-                        ePx = ePxU;
-                    }
-                    if (exon.getCdEnd() < exon.getEnd()) {
-                        int ePxU = (int) Math.round((exon.getCdEnd() - bpStart) / xScale);
-                        ctx.fillRect(ePxU, py2, ePx1 - ePxU, h2); // start is UTR
-                        ePw -= (ePx1 - ePxU);
-                        ePx1 = ePxU;
-                    }
+                ctx.fillRect(ePx, py2, ePw, h2);
 
-                    ctx.fillRect(ePx, py, ePw, h);
-
-                    // Arrows
-                    if (ePw > arrowStep + 5) {
-                        ctx.setFill(Color.WHITE);
-                        ctx.setStroke(Color.WHITE);
-                        for (int x = ePx + arrowStep / 2; x < ePx1; x += arrowStep) {
-                            // draw arrowheads along central line indicating transcribed orientation
-                            ctx.strokeLine(x - direction * 2, cy - 2, x, cy);
-                            ctx.strokeLine(x - direction * 2, cy + 2, x, cy);
-                        }
-                        ctx.setFill(color);
-                        ctx.setStroke(color);
-
-                    }
-                }
+//                if (exon.isUtr()) {
+//                    ctx.fillRect(ePx, py2, ePw, h2); // Entire exon is UTR
+//                } else {
+//                    if (exon.getCdStart() > bpStart) {
+//                        int ePxU = (int) Math.round((exon.getCdStart() - bpStart) / xScale);
+//                        ctx.fillRect(ePx, py2, ePxU - ePx, h2); // start is UTR
+//                        ePw -= (ePxU - ePx);
+//                        ePx = ePxU;
+//                    }
+//                    if (exon.getCdEnd() < exon.getEnd()) {
+//                        int ePxU = (int) Math.round((exon.getCdEnd() - bpStart) / xScale);
+//                        ctx.fillRect(ePxU, py2, ePx1 - ePxU, h2); // start is UTR
+//                        ePw -= (ePx1 - ePxU);
+//                        ePx1 = ePxU;
+//                    }
+//
+//                    ctx.fillRect(ePx, py, ePw, h);
+//
+//                    // Arrows
+//                    if (ePw > arrowStep + 5) {
+//                        ctx.setFill(Color.WHITE);
+//                        ctx.setStroke(Color.WHITE);
+//                        for (int x = ePx + arrowStep / 2; x < ePx1; x += arrowStep) {
+//                            // draw arrowheads along central line indicating transcribed orientation
+//                            ctx.strokeLine(x - direction * 2, cy - 2, x, cy);
+//                            ctx.strokeLine(x - direction * 2, cy + 2, x, cy);
+//                        }
+//                        ctx.setFill(color);
+//                        ctx.setStroke(color);
+//
+//                    }
+//                }
             }
         }
 

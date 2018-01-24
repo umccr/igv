@@ -27,6 +27,7 @@ package org.igv.feature;
 import htsjdk.samtools.util.CloseableIterator;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import org.broad.igv.renderer.*;
 import org.broad.igv.ui.panel.ReferenceFrame;
 import org.broad.igv.util.ResourceLocator;
 import org.igv.tribble.Feature;
@@ -48,6 +49,7 @@ public class FeatureTrack implements Track {
 
 
     FeatureReader reader;
+    FeatureRenderer renderer;
 
     // Static map chr -> features.  To be replaced by queryable feature source
     Map<String, List<Feature>> featureMap;
@@ -56,6 +58,7 @@ public class FeatureTrack implements Track {
     public FeatureTrack(ResourceLocator locator) {
 
         reader = FeatureReaderFactory.getReader(locator);
+        renderer = new FeatureRenderer();
 
         try {
             init();
@@ -104,13 +107,15 @@ public class FeatureTrack implements Track {
             if (f.getEnd() < startBP) continue;
             if (f.getStart() > endBP) break;
 
-            // Draw rectangle for entire feature.  Exons etc to come later
-            double p0 = (f.getStart() - frame.getOrigin()) / frame.getScale();  // Scale is in bp / pixel
-            double p1 = (f.getEnd() - frame.getOrigin()) / frame.getScale();
-
-
             ctx.setFill(Color.BLUE);
-            ctx.fillRect(p0, 5, (p1 - p0), 25);
+            renderer.renderFeature(f, startBP, frame.getScale(), 25, ctx);
+            // Draw rectangle for entire feature.  Exons etc to come later
+//            double p0 = (f.getStart() - frame.getOrigin()) / frame.getScale();  // Scale is in bp / pixel
+//            double p1 = (f.getEnd() - frame.getOrigin()) / frame.getScale();
+//
+//
+//            ctx.setFill(Color.BLUE);
+//            ctx.fillRect(p0, 5, (p1 - p0), 25);
 
         }
 
