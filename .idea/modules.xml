@@ -2,10 +2,10 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/IGV.iml" filepath="$PROJECT_DIR$/IGV.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/igv.iml" filepath="$PROJECT_DIR$/.idea/modules/igv.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/igv_main.iml" filepath="$PROJECT_DIR$/.idea/modules/igv_main.iml" group="igv" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/igv_test.iml" filepath="$PROJECT_DIR$/.idea/modules/igv_test.iml" group="igv" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/javafx.iml" filepath="$PROJECT_DIR$/.idea/javafx.iml" />
     </modules>
   </component>
 </project>
