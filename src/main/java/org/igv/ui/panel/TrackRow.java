@@ -33,15 +33,32 @@ public class TrackRow extends IGVRow<TrackNamePane, AttributePane, AxisPane, Dat
 
     public TrackRow(String name, Track track, MainContentPane mainContentPane) {
         this.name = name;
-        // TODO: determine correct row height setting
-        double height = 200.0;
-        this.prefHeightProperty().set(height);
+        // TODO: determine correct row & track height settings
+        // The following is just a mock-up to explore sizing before we start drawing actual data.
+        double rowHeight = 200.0;
+        double trackHeight = 400.0;
+        this.prefHeightProperty().set(trackHeight);
+        this.minHeightProperty().set(trackHeight);
+        this.maxHeightProperty().set(trackHeight);
         TrackScrollPane trackScrollPane = new TrackScrollPane(this);
+        trackScrollPane.prefHeightProperty().set(rowHeight);
+        trackScrollPane.minHeightProperty().set(rowHeight);
+        trackScrollPane.maxHeightProperty().set(rowHeight);
         TrackNamePane namePane = new TrackNamePane();
         AttributePane attributePane = new AttributePane();
         AxisPane axisPane = new AxisPane();
         DataPaneContainer contentContainer = new DataPaneContainer(track);
         init(mainContentPane, namePane, attributePane, axisPane, contentContainer, trackScrollPane);
+
+        this.setOnMouseClicked(event -> {
+            System.out.println("Event on Source: mouse click");
+            double newHeight = 100.0 + (900.0 * Math.random());
+            System.out.println("Changing track height to: " + newHeight);
+            this.prefHeightProperty().set(newHeight);
+            this.minHeightProperty().set(newHeight);
+            this.maxHeightProperty().set(newHeight);
+        });
+
     }
 
     public String getName() {
