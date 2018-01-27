@@ -27,6 +27,7 @@ package org.igv.ui.panel;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.Insets;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import org.apache.log4j.Logger;
@@ -81,7 +82,10 @@ public class MainContentPane extends BorderPane {
 
         headerRow = new HeaderRow(this);
         this.setTop(headerRow.getScrollPane());
-        this.setCenter(trackContainer);
+        ScrollPane trackContainerScrollPane = new ScrollPane(trackContainer);
+        trackContainerScrollPane.setFitToHeight(true);
+        trackContainerScrollPane.setFitToWidth(true);
+        this.setCenter(trackContainerScrollPane);
 
         Color bgColor = PreferencesManager.getPreferences().getAsJavaFxColor(BACKGROUND_COLOR);
         Background background = new Background(new BackgroundFill(bgColor, CornerRadii.EMPTY, Insets.EMPTY));
