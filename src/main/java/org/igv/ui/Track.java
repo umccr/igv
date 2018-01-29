@@ -24,9 +24,12 @@
  */
 package org.igv.ui;
 
+import javafx.beans.property.DoubleProperty;
 import javafx.scene.canvas.GraphicsContext;
 import org.broad.igv.ui.panel.ReferenceFrame;
 
 public interface Track {
     public void draw(GraphicsContext ctx, ReferenceFrame frame);
+
+    public DoubleProperty prefHeightProperty();
 }

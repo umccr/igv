@@ -25,6 +25,8 @@
 package org.igv.feature;
 
 import htsjdk.samtools.util.CloseableIterator;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import org.broad.igv.renderer.*;
@@ -50,6 +52,10 @@ public class FeatureTrack implements Track {
 
     FeatureReader reader;
     FeatureRenderer renderer;
+    
+    // TODO: set height properly based on data.
+    // This is a mock-up for now.
+    private DoubleProperty prefHeightProperty = new SimpleDoubleProperty(400.0);
 
     // Static map chr -> features.  To be replaced by queryable feature source
     Map<String, List<Feature>> featureMap;
@@ -66,6 +72,10 @@ public class FeatureTrack implements Track {
             e.printStackTrace();
         }
 
+    }
+
+    public DoubleProperty prefHeightProperty() {
+        return prefHeightProperty;
     }
 
     private void init() throws IOException {

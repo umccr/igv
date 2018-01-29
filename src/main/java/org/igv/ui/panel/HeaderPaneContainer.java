@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2007-2017 Broad Institute
+ * Copyright (c) 2007-2018 Broad Institute
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -47,7 +47,6 @@ public class HeaderPaneContainer extends BorderPane {
     
     public HeaderPaneContainer() {
         JavaFXUIUtilities.bindWidthToContainer(this, contentPane);
-        contentPane.prefHeightProperty().bind(prefHeightProperty());
         setCenter(contentPane);
     }
 
@@ -71,7 +70,6 @@ public class HeaderPaneContainer extends BorderPane {
             if (StringUtils.isNotBlank(name)) {
                 Label label = new Label(name);
                 label.getStyleClass().add("geneListHeaderPaneContainerLabel");
-                contentPane.prefHeightProperty().bind(prefHeightProperty().subtract(label.heightProperty()));
                 setTop(label);
             }
         }

@@ -30,6 +30,7 @@ import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
 import org.apache.log4j.Logger;
 import org.broad.igv.ui.panel.ReferenceFrame;
+import org.igv.ui.JavaFXUIUtilities;
 import org.igv.ui.Track;
 
 // Intended as the rough equivalent of the DataPanel class of the Swing UI.  Work in progress.
@@ -48,10 +49,19 @@ public class DataPane extends ContentPane {
         this.parent = parent;
         init();
 
+        JavaFXUIUtilities.bindComponentHeightToProperty(this, track.prefHeightProperty());
+        
         completeInitialization();
     }
 
     private void init() {
+
+        this.setOnMouseClicked(event -> {
+            System.out.println("Event on Source: mouse click");
+            double newHeight = 100.0 + (900.0 * Math.random());
+            System.out.println("Changing track height to: " + newHeight);
+            track.prefHeightProperty().set(newHeight);
+        });
 
         this.setOnMouseReleased(new EventHandler <MouseEvent>()
         {

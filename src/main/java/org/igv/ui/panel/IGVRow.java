@@ -28,6 +28,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+
 import org.igv.ui.JavaFXUIUtilities;
 
 // Intended as the rough equivalent of the IGVPanel class of the Swing UI.  Work in progress.
@@ -55,33 +56,26 @@ public class IGVRow<N extends Pane, A extends Pane, X extends Pane, C extends Pa
         this.contentContainer = contentContainer;
         this.scrollPane = scrollPane;
 
-        scrollPane.setFitToHeight(true);
-        scrollPane.setFitToWidth(true);
+        //scrollPane.setFitToWidth(true);
         scrollPane.setHbarPolicy(ScrollBarPolicy.NEVER);
-        scrollPane.setVbarPolicy(ScrollBarPolicy.ALWAYS);
-
-        JavaFXUIUtilities.bindWidthToContainer(mainContentPane, scrollPane);
         
+        JavaFXUIUtilities.bindWidthToContainer(mainContentPane, scrollPane);
         JavaFXUIUtilities.bindWidthToProperty(namePane, mainContentPane.namePaneWidthProperty());
-        JavaFXUIUtilities.bindHeightToContainer(this, namePane);
-
         JavaFXUIUtilities.bindWidthToProperty(attributePane, mainContentPane.attributePaneWidthProperty());
-        JavaFXUIUtilities.bindHeightToContainer(this, attributePane);
-
         JavaFXUIUtilities.bindWidthToProperty(axisPane, mainContentPane.axisPaneWidthProperty());
-        JavaFXUIUtilities.bindHeightToContainer(this, axisPane);
 
         // The contentContainer should take the rest of the space.  That is:
         // total width - (name pane width + attr + axis pane width + (2 * insets) + scrollbar width)
         // The following is a guess on scrollbar width (30) but seems to work.
         contentContainer.prefWidthProperty().bind(this.prefWidthProperty()
-                .subtract(mainContentPane.namePaneWidthProperty().add(mainContentPane.attributePaneWidthProperty().add(mainContentPane.axisPaneWidthProperty())).add(2 * INSET_SPACING + 30)));
-        JavaFXUIUtilities.bindHeightToContainer(this, contentContainer);
+                .subtract(mainContentPane.namePaneWidthProperty().add(mainContentPane.attributePaneWidthProperty().add(mainContentPane.axisPaneWidthProperty())).add(3 * INSET_SPACING + 30)));
+
+        JavaFXUIUtilities.bindComponentHeightToOther(this, contentContainer);
+        JavaFXUIUtilities.bindComponentHeightToOther(namePane, contentContainer);
+        JavaFXUIUtilities.bindComponentHeightToOther(attributePane, contentContainer);
+        JavaFXUIUtilities.bindComponentHeightToOther(axisPane, contentContainer);
         
-        getChildren().add(namePane);
-        getChildren().add(attributePane);
-        getChildren().add(axisPane);
-        getChildren().add(contentContainer);
+        getChildren().addAll(namePane, attributePane, axisPane, contentContainer);
 
         JavaFXUIUtilities.bindWidthToContainer(mainContentPane, this);
 

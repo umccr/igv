@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2007-2017 Broad Institute
+ * Copyright (c) 2007-2018 Broad Institute
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -50,6 +50,18 @@ public class JavaFXUIUtilities {
         child.minHeightProperty().bind(container.minHeightProperty());
         child.maxHeightProperty().bind(container.maxHeightProperty());
     }
+    
+    public static final void bindComponentHeightToOther(Region component, Region other) {
+        component.prefHeightProperty().bind(other.prefHeightProperty());
+        component.minHeightProperty().bind(other.minHeightProperty());
+        component.maxHeightProperty().bind(other.maxHeightProperty());
+    }    
+    
+    public static final void bindComponentHeightToProperty(Region component, DoubleProperty heightProperty) {
+        component.prefHeightProperty().bind(heightProperty);
+        component.minHeightProperty().bind(heightProperty);
+        component.maxHeightProperty().bind(heightProperty);
+    }    
     
     public static final void bindDimensionsToContainer(Region container, Region child) {
         bindWidthToContainer(container, child);

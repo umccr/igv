@@ -92,9 +92,9 @@ public class RulerPane extends ContentPane {
 
     public RulerPane(ReferenceFrame frame) {
         super(frame);
-        setMinHeight(80);
-        setMaxHeight(80);
-        setPrefHeight(80);
+        minHeightProperty().set(80);
+        maxHeightProperty().set(80);
+        prefHeightProperty().set(80);
 
         Tooltip.install(this, tooltip);
 

@@ -90,9 +90,9 @@ public class CytobandPane extends ContentPane {
 
         Font font = Font.font(fontFamilyName, FontWeight.BOLD, fontHeight);
         getCanvas().getGraphicsContext2D().setFont(font);
-        setMinHeight(40);
-        setMaxHeight(40);
-        setPrefHeight(40);
+        minHeightProperty().set(40);
+        maxHeightProperty().set(40);
+        prefHeightProperty().set(40);
 
         Tooltip.install(this, tooltip);
         this.setCursor(Cursor.HAND);

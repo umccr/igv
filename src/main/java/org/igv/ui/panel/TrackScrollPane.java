@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2007-2017 Broad Institute
+ * Copyright (c) 2007-2018 Broad Institute
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,23 +27,16 @@ package org.igv.ui.panel;
 import javafx.scene.control.ScrollPane;
 
 // Intended as the rough equivalent of the TrackPanelScrollPane class of the Swing UI.  Work in progress.
+// So far, there's nothing about this class that's substantially any different from a normal ScrollPane.
 public class TrackScrollPane extends ScrollPane {
     private TrackRow trackRow;
 
     public TrackScrollPane() {
-        // Set up Track-oriented defaults & mouse handling code.
-
     }
 
     public TrackScrollPane(TrackRow trackRow) {
         super(trackRow);
         this.trackRow = trackRow;
-        setFitToHeight(true);
-        setFitToWidth(true);
-
-        // Mimic the SB policy of the Swing UI
-        setHbarPolicy(ScrollBarPolicy.NEVER);
-        setVbarPolicy(ScrollBarPolicy.ALWAYS);
     }
 
     public TrackRow getTrackRow() {
