@@ -65,10 +65,10 @@ public class IGVRow<N extends Pane, A extends Pane, X extends Pane, C extends Pa
         JavaFXUIUtilities.bindWidthToProperty(axisPane, mainContentPane.axisPaneWidthProperty());
 
         // The contentContainer should take the rest of the space.  That is:
-        // total width - (name pane width + attr + axis pane width + (2 * insets) + scrollbar width)
-        // The following is a guess on scrollbar width (30) but seems to work.
+        // total width - (name pane width + attr + axis pane width + (2 * insets) + double scrollbar width)
+        // The value here (50) is a guess on double-width but seems to work well enough.
         contentContainer.prefWidthProperty().bind(this.prefWidthProperty()
-                .subtract(mainContentPane.namePaneWidthProperty().add(mainContentPane.attributePaneWidthProperty().add(mainContentPane.axisPaneWidthProperty())).add(3 * INSET_SPACING + 30)));
+                .subtract(mainContentPane.namePaneWidthProperty().add(mainContentPane.attributePaneWidthProperty().add(mainContentPane.axisPaneWidthProperty())).add(3 * INSET_SPACING + 50)));
 
         JavaFXUIUtilities.bindComponentHeightToOther(this, contentContainer);
         JavaFXUIUtilities.bindComponentHeightToOther(namePane, contentContainer);
