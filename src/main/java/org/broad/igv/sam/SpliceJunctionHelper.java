@@ -169,7 +169,16 @@ public class SpliceJunctionHelper {
     private List<SpliceJunctionFeature> combineStrandJunctionsMaps() {
 
         // Start with all + junctions
-        Table<Integer, Integer, SpliceJunctionFeature> combinedStartEndJunctionsMap = HashBasedTable.create(posStartEndJunctionsMap);
+        Table<Integer, Integer, SpliceJunctionFeature> combinedStartEndJunctionsMap = HashBasedTable.create();
+
+        for (Table.Cell<Integer, Integer, SpliceJunctionFeature> posJunctionCell : posStartEndJunctionsMap.cellSet()) {
+            int junctionStart = posJunctionCell.getRowKey();
+            int junctionEnd = posJunctionCell.getColumnKey();
+            SpliceJunctionFeature posFeat = posJunctionCell.getValue();
+            SpliceJunctionFeature combinedFeature = new SpliceJunctionFeature(posFeat);
+            combinedStartEndJunctionsMap.put(junctionStart, junctionEnd, combinedFeature);
+        }
+
 
         for (Table.Cell<Integer, Integer, SpliceJunctionFeature> posJunctionCell : posStartEndJunctionsMap.cellSet()) {
             int junctionStart = posJunctionCell.getRowKey();

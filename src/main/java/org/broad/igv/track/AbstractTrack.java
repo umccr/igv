@@ -411,13 +411,14 @@ public abstract class AbstractTrack implements Track {
         String value;
         if (key.equals(AttributeManager.GROUP_AUTOSCALE)) {
             value = autoscaleGroup;
-            if (value == null) {
+            if(value == null) {
                 value = getFromAttributeManager(key);
                 autoscaleGroup = value;
             }
-        } else {
+        }
+        else {
             value = attributes.get(key);
-            if (value == null) {
+            if(value == null) {
                 value = getFromAttributeManager(key);
             }
         }
