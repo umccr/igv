@@ -63,17 +63,6 @@ public class SpliceJunctionFeature extends BasicFeature {
         junctionEnd = end;
     }
 
-    public SpliceJunctionFeature(SpliceJunctionFeature posFeat) {
-        this(posFeat.getChr(), posFeat.getStart(), posFeat.getEnd());
-        this.junctionDepth = posFeat.junctionDepth;
-        this.startFlankingRegionDepthArray = new int[posFeat.startFlankingRegionDepthArray.length];
-        System.arraycopy(posFeat.startFlankingRegionDepthArray, 0, this.startFlankingRegionDepthArray, 0,
-                posFeat.startFlankingRegionDepthArray.length);
-        this.endFlankingRegionDepthArray = new int[posFeat.endFlankingRegionDepthArray.length];
-        System.arraycopy(posFeat.endFlankingRegionDepthArray, 0, this.endFlankingRegionDepthArray, 0,
-                posFeat.endFlankingRegionDepthArray.length);
-    }
-
 
     public SpliceJunctionFeature(SpliceJunctionFeature posFeat) {
         this(posFeat.getChr(), posFeat.getStart(), posFeat.getEnd());
