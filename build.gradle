@@ -47,9 +47,6 @@ jar {
             "Main-Class": mainClassName,
             "Class-Path": configurations.compile.collect { it.getName() }.join(' ')
         )
-        // TODO: conditionally build Class-Path for either unified JAR or slim JAR
-        //"Class-Path": ${class-path}
-        // TODO: Need to add our custom manifest section
     }
 }
 
@@ -62,4 +59,14 @@ tasks.withType(Test) {
     maxHeapSize = '2000m'
     jvmArgs '-javaagent:test/lib/JavaAgent.jar'
     forkEvery = 1
+}
+
+task unifiedJar {
+    doLast {
+        def proc = "ant -f build-shrink.xml".execute()
+        proc.waitFor();
+        println "return code: ${ proc.exitValue()}"
+        println "stderr: ${proc.err.text}"
+        println "stdout: ${proc.in.text}"
+    }
 }
