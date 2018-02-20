@@ -69,6 +69,7 @@
          on jars directly, for example). 
     -->
     <target name="prepare" if="act.include.libs">
+        <mkdir dir="${dist.dir}" />
         <unzip dest="${tmp.dir}">
             <!-- Copy almost everything to tmp directory
             Certain jars we include whole, because we need their manifests
