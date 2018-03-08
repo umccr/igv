@@ -1,10 +1,13 @@
-package org.broad.igv.ui.commandbar;
+package org.igv.ui.toolbar;
 
 import org.apache.log4j.Logger;
 import org.broad.igv.DirectoryManager;
 import org.broad.igv.Globals;
+import org.broad.igv.event.GenomeResetEvent;
+import org.broad.igv.event.IGVEventBus;
 import org.broad.igv.feature.genome.GenomeListItem;
 import org.broad.igv.feature.genome.GenomeManager;
+import org.broad.igv.lists.GeneListManager;
 import org.broad.igv.prefs.Constants;
 import org.broad.igv.prefs.PreferencesManager;
 import org.broad.igv.ui.IGVMenuBar;
@@ -12,7 +15,10 @@ import org.broad.igv.ui.util.ConfirmDialog;
 import org.igv.utils.MessageUtils;
 import org.broad.igv.util.FileUtils;
 import org.broad.igv.util.HttpUtils;
+import org.broad.igv.util.LongRunningTask;
 import org.broad.igv.util.Utilities;
+
+import javafx.application.Platform;
 
 import java.io.*;
 import java.net.URL;
@@ -25,6 +31,7 @@ import java.util.zip.ZipInputStream;
 /**
  * Created by jrobinso on 7/6/17.
  */
+// TODO: port to JavaFX
 public class GenomeListManager {
 
     final static String GENOME_ARCHIVE_VERSION_KEY = "version";
@@ -32,7 +39,7 @@ public class GenomeListManager {
     final static String GENOME_ARCHIVE_ID_KEY = "id";
     final static String GENOME_ARCHIVE_NAME_KEY = "name";
 
-    private static Logger log = Logger.getLogger(GenomeManager.class);
+    private static Logger log = Logger.getLogger(GenomeListManager.class);
 
     private static final String ACT_USER_DEFINED_GENOME_LIST_FILE = "user-defined-genomes.txt";
     public static final String TEST_USER_DEFINED_GENOME_LIST_FILE = "test-user-defined-genomes.txt";
@@ -404,13 +411,9 @@ public class GenomeListManager {
                 serverGenomeListUnreachable = true;
                 serverGenomeMap.clear();
                 log.error("Error fetching genome list: ", e);
-                log.error("Server Genome List will be considered unreachable");
-                // TODO: convert to JavaFX.  Using MessageUtils in the meanwhile
-//                ConfirmDialog.optionallyShowInfoDialog("Warning: could not connect to the genome server (" +
-//                                genomeListURLString + ").    Only locally defined genomes will be available.",
-//                        Constants.SHOW_GENOME_SERVER_WARNING);
-                MessageUtils.showMessage("Warning: could not connect to the genome server (" +
-                                genomeListURLString + ").    Only locally defined genomes will be available.");
+                ConfirmDialog.optionallyShowInfoDialog("Warning: could not connect to the genome server (" +
+                                genomeListURLString + ").    Only locally defined genomes will be available.",
+                        Constants.SHOW_GENOME_SERVER_WARNING);
 
             } finally {
                 if (dataReader != null) {
@@ -576,6 +579,65 @@ public class GenomeListManager {
 
     }
 
+    /**
+     * Open a selection list to load a genome from the server.   This method is used by multiple UI elements  (menu bar and genome selection pulldown).
+     */
+	// TODO: port to JavaFX
+    public void loadGenomeFromServer() {
+        // Hack so we don't go beyond here.  Will always return.  
+    	    // Requires the GenomeSelectionDialog, etc which are not yet ready, but puts the bulk of code in place
+        if (GeneListManager.getInstance() != null) return;
+        
+        Runnable showDialog = () -> {
+
+	        Collection<GenomeListItem> inputListItems = getServerGenomeList();
+	        
+	        if (inputListItems == null) {
+	            //Could not reach genome server.  Not necessary to display a message, getServerGenomeList does it already
+	            return;
+	        }
+	        
+	        GenomeSelectionDialog dialog = new GenomeSelectionDialog(null, inputListItems);
+	        Platform.runLater(() -> dialog.setVisible(true));
+	        
+            if (dialog.isCanceled()) {
+                // Clear the "More..."  selection in pulldown
+                IGVEventBus.getInstance().post(new GenomeResetEvent());
+            } else {
+
+                GenomeListItem selectedValue = dialog.getSelectedValue();
+
+
+                if (selectedValue != null) {
+
+                    boolean success = GenomeManager.getInstance().downloadGenomes(selectedValue, dialog.downloadSequence());
+
+                    if (success) {
+                     	addServerGenomeItem(selectedValue);
+
+                        final GenomeListItem firstItem = selectedValue;
+                        try {
+                            GenomeManager.getInstance().loadGenome(firstItem.getPath(), null);
+                        } catch (IOException e) {
+                            removeGenomeListItem(firstItem);
+                            MessageUtils.showErrorMessage("Error loading genome " + firstItem.getDisplayableName(), e);
+                            log.error("Error loading genome " + firstItem.getDisplayableName(), e);
+                        }
+                    }
+                }
+            }
+        };
+
+        if (Platform.isFxApplicationThread()) {
+      	    // TODO: Port LongRunningTask to JavaFX.
+            // Possible that that this will interfere with Exit due to threads.
+            LongRunningTask.submit(showDialog);
+		} else {
+		    showDialog.run();
+		}
+
+    }
+    
     /**
      * Added for unit tests
      */

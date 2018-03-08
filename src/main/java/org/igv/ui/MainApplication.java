@@ -41,6 +41,7 @@ import org.broad.igv.util.HttpUtils;
 import org.broad.igv.util.RuntimeUtils;
 import org.broad.igv.util.stream.IGVSeekableStreamFactory;
 import org.igv.ui.panel.MainContentPane;
+import org.igv.utils.LongRunningTask;
 
 import java.util.List;
 
@@ -148,13 +149,16 @@ public class MainApplication extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         checkLowMemory();
-
-        MainContentPane mainContentPane = IGVStageBuilder.buildStage(primaryStage);
-        IGVBackendPlaceholder.startupInit(igvArgs, mainContentPane);
-
-        primaryStage.setTitle("IGV JavaFX port");
-
-        primaryStage.show();
+        try {
+            MainContentPane mainContentPane = IGVStageBuilder.buildStage(primaryStage);
+            IGVBackendPlaceholder.startupInit(igvArgs, mainContentPane);
+            primaryStage.setTitle("IGV JavaFX port");
+            primaryStage.show();
+        }
+        catch (Throwable t) {
+        	   log.error("Exception in Application start method", t);
+        	   // swallow
+        }
     }
 
     @Override
@@ -172,8 +176,14 @@ public class MainApplication extends Application {
         // The Application.stop() method is called when all the windows are closed, but it only terminates
         // the JavaFX application thread.  There are a number of other threads left running: in thread pool(s),
         // port listener, etc.  We need to signal to all of those to shut down as well.
-        // As-is, the JVM is left running after close and requires manual termination.
+        // As-is, the JVM is left running after close and requires manual termination without the System.exit() call.
 
+        // This does not seem to do the job.
+        //LongRunningTask.shutdownOnExit();
+        
+        // We might want to update this eventually to do something less severe but for now it seems to work, 
+        // taking care of any running threads and fully shutting down the app.
+        System.exit(0);
     }
 
     public static void main(String[] args) {

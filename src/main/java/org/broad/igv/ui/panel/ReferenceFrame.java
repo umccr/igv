@@ -128,8 +128,11 @@ public class ReferenceFrame {
         chromosomeNameProperty.set(chrName);
         this.eventBus = IGVEventBus.getInstance();
         chromosomeNameProperty.addListener((observable, oldValue, newValue) -> {
+        	    log.info("Chr name change (old/new): " + oldValue + "/" + newValue);
             if (newValue != null) {
                 changeChromosome(newValue, true);
+            } else {
+            	    changeChromosome(Globals.CHR_ALL, true);
             }
         });
         zoomProperty.addListener((observable, oldValue, newValue) -> {

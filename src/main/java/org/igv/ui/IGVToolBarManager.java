@@ -26,11 +26,8 @@
 package org.igv.ui;
 
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.HBox;
 import org.apache.commons.lang.StringUtils;
@@ -41,7 +38,9 @@ import org.broad.igv.feature.genome.Genome;
 import org.broad.igv.feature.genome.GenomeManager;
 import org.broad.igv.ui.panel.FrameManager;
 import org.broad.igv.ui.panel.ReferenceFrame;
+import org.broad.igv.util.LongRunningTask;
 import org.igv.ui.toolbar.ChromosomeComboBox;
+import org.igv.ui.toolbar.GenomeComboBox;
 import org.igv.ui.toolbar.SearchTextField;
 import org.igv.ui.toolbar.ZoomSlider;
 
@@ -51,7 +50,7 @@ public class IGVToolBarManager implements IGVEventObserver {
     private static Logger log = Logger.getLogger(IGVToolBarManager.class);
     
     private ToolBar toolBar;
-    private ComboBox<String> genomeSelector;
+    private GenomeComboBox genomeSelector;
     private ChromosomeComboBox chromosomeSelector;
     private ZoomSlider zoomSlider;
     private SearchTextField searchTextField = new SearchTextField();
@@ -59,13 +58,7 @@ public class IGVToolBarManager implements IGVEventObserver {
 
     public IGVToolBarManager() {
 
-        // TODO: populate ToolBar controls with actual content.
-        // TODO: add event handlers to all ToolBar components, including enable/disable.
-        // Probably need to migrate most controls to instance variables.
-        String defaultGenome = "Human hg19";
-        ObservableList<String> genomes = FXCollections.observableArrayList(defaultGenome, "chr1.fasta");
-        genomeSelector = new ComboBox<String>(genomes);
-
+        genomeSelector = new GenomeComboBox();
         chromosomeSelector = new ChromosomeComboBox(GenomeManager.getInstance().getCurrentGenome());
 
         goButton.setOnAction((event) -> searchByLocus(searchTextField.getText()));
@@ -131,7 +124,9 @@ public class IGVToolBarManager implements IGVEventObserver {
     }
 
     public void refreshGenomeListComboBox() {
-        // Not yet implemented
+    	    LongRunningTask.submit(() -> {
+    			genomeSelector.refreshGenomeList();
+    		});
     }
 
     public void updateCurrentCoordinates() {

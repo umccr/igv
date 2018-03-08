@@ -45,6 +45,7 @@ import java.awt.event.ActionListener;
  *
  * @author Jim Robinson
  */
+// TODO: convert to JavaFX
 public class ConfirmDialog extends JDialog {
 
     String key;
@@ -173,7 +174,9 @@ public class ConfirmDialog extends JDialog {
         boolean show = PreferencesManager.getPreferences().getAsBoolean(key);
         show &= ( !Globals.isHeadless() && !Globals.isSuppressMessages() );
         if (show) {
-            ConfirmDialog dlg = new ConfirmDialog(IGV.getMainFrame(), message, key);
+            // Hack workaround until we implement a progress monitor for the JavaFX UI.
+            final Frame mainFrame = (Globals.IS_JAVAFX_UI) ? null : IGV.getMainFrame();
+			ConfirmDialog dlg = new ConfirmDialog(mainFrame, message, key);
             dlg.okButton.setText("OK");
             dlg.cancelButton.setVisible(false);
             dlg.setVisible(true);
