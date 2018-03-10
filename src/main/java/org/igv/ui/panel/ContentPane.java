@@ -60,6 +60,10 @@ public abstract class ContentPane extends ResizableCanvas {
         frame.zoomProperty().addListener((observable, oldValue, newValue) -> render());
         this.prefWidthProperty().addListener((observable, oldValue, newValue) -> render());
         this.prefHeightProperty().addListener((observable, oldValue, newValue) -> render());
+
+        // HACK: not set/used properly throughout the app.  Just used as a signal for change.
+        frame.centerProperty().addListener((observable, oldValue, newValue) -> render());
+        
         render();
     }
 

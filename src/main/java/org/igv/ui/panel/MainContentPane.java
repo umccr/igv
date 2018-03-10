@@ -136,6 +136,11 @@ public class MainContentPane extends BorderPane {
     public HeaderRow getHeaderRow() {
         return headerRow;
     }
+    
+    public void clearTracks() {
+        trackContainer.getChildren().clear();
+        trackRowByName.clear();
+    }
 
     public void resetContent() {
         HeaderPaneContainer headerPaneContainer = headerRow.getContentContainer();

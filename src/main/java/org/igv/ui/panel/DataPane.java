@@ -28,7 +28,10 @@ import javafx.event.EventHandler;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
+
 import org.apache.log4j.Logger;
+import org.broad.igv.event.IGVEventBus;
+import org.broad.igv.event.ViewChange;
 import org.broad.igv.ui.panel.ReferenceFrame;
 import org.igv.ui.JavaFXUIUtilities;
 import org.igv.ui.Track;
@@ -36,8 +39,11 @@ import org.igv.ui.Track;
 // Intended as the rough equivalent of the DataPanel class of the Swing UI.  Work in progress.
 public class DataPane extends ContentPane {
 
-    // TODO -- a DataPane needs a track.
     private Track track;
+    private boolean isDragging = false;
+
+    private double viewOrigin;
+    private double viewEnd;
 
     private static Logger log = Logger.getLogger(DataPane.class);
     
@@ -56,11 +62,26 @@ public class DataPane extends ContentPane {
 
     private void init() {
 
-        this.setOnMouseClicked(event -> {
-            System.out.println("Event on Source: mouse click");
-            double newHeight = 100.0 + (900.0 * Math.random());
-            System.out.println("Changing track height to: " + newHeight);
-            track.prefHeightProperty().set(newHeight);
+//        this.setOnMouseClicked(event -> {
+//            System.out.println("Event on Source: mouse click");
+//            double newHeight = 100.0 + (900.0 * Math.random());
+//            System.out.println("Changing track height to: " + newHeight);
+//            track.prefHeightProperty().set(newHeight);
+//        });
+        this.setOnMouseClicked((event) -> {
+            final double mouseX = event.getX();
+            final int clickCount = event.getClickCount();
+            double newLocation = frame.getScale() * mouseX;
+            if (clickCount > 1) {
+                final int newZoom = frame.getZoom() + 1;
+                frame.doSetZoomCenter(newZoom, newLocation);
+            } else {
+                frame.centerOnLocation(newLocation);
+            }
+
+            ViewChange result = ViewChange.Result();
+            result.setRecordHistory(true);
+            IGVEventBus.getInstance().post(result);
         });
 
         this.setOnMouseReleased(new EventHandler <MouseEvent>()
@@ -129,8 +150,16 @@ public class DataPane extends ContentPane {
 
         GraphicsContext gc = getCanvas().getGraphicsContext2D();
 
+        // TODO: decide whether we *always* want to clear the canvas during render.
+        gc.clearRect(0.0, 0.0, getCanvas().getWidth(), getCanvas().getHeight());
+        
         if(track != null) {
-
+            
+            double dataPanelWidth = this.getPrefWidth();
+            if (dataPanelWidth <= 0.0) {
+                return;
+            }
+            
             track.draw(gc, this.frame);
 
         }

@@ -26,6 +26,7 @@
 package org.igv.ui;
 
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ToolBar;
@@ -39,6 +40,7 @@ import org.broad.igv.feature.genome.GenomeManager;
 import org.broad.igv.ui.panel.FrameManager;
 import org.broad.igv.ui.panel.ReferenceFrame;
 import org.broad.igv.util.LongRunningTask;
+import org.igv.ui.panel.MainContentPane;
 import org.igv.ui.toolbar.ChromosomeComboBox;
 import org.igv.ui.toolbar.GenomeComboBox;
 import org.igv.ui.toolbar.SearchTextField;
@@ -56,9 +58,15 @@ public class IGVToolBarManager implements IGVEventObserver {
     private SearchTextField searchTextField = new SearchTextField();
     private Button goButton = new Button("Go");
 
-    public IGVToolBarManager() {
+    // Keep as instance var for later break-out of actions, etc from constructor.
+    private MainContentPane mainContentPane;
+
+    public IGVToolBarManager(MainContentPane mainContentPane) {
+        this.mainContentPane = mainContentPane;
 
         genomeSelector = new GenomeComboBox();
+        genomeSelector.valueProperty().addListener((observable, oldValue, newValue) -> this.mainContentPane.clearTracks());
+        
         chromosomeSelector = new ChromosomeComboBox(GenomeManager.getInstance().getCurrentGenome());
 
         goButton.setOnAction((event) -> searchByLocus(searchTextField.getText()));

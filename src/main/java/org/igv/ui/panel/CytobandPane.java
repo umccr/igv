@@ -44,6 +44,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.broad.igv.Globals;
 import org.broad.igv.event.IGVEventBus;
 import org.broad.igv.event.ViewChange;
@@ -59,7 +60,8 @@ import java.util.List;
 import java.util.Map;
 
 public class CytobandPane extends ContentPane {
-
+    private static Logger log = Logger.getLogger(CytobandPane.class);
+    
     private static double fontHeight = 10.0;
     private static final double bandHeight = 10.0;
     private static String fontFamilyName = "Lucida Sans";
@@ -120,8 +122,8 @@ public class CytobandPane extends ContentPane {
 
     protected void render() {
         Canvas canvas = getCanvas();
-        GraphicsContext graphicContext = canvas.getGraphicsContext2D();
-        graphicContext.clearRect(0.0, 0.0, canvas.getWidth(), canvas.getHeight());
+        GraphicsContext graphicsContext = canvas.getGraphicsContext2D();
+        graphicsContext.clearRect(0.0, 0.0, canvas.getWidth(), canvas.getHeight());
         
         if (frame.getChrName().equals(Globals.CHR_ALL)) {
             return;
@@ -140,21 +142,21 @@ public class CytobandPane extends ContentPane {
         // The original Swing code gets the width from the Frame, but it seems more straightforward 
         // to get it from the Pane itself.  Do it this way for now, but possibly change later.
         //int dataPanelWidth = frame.getWidthInPixels();
-        double dataPanelWidth = this.getPrefWidth();
+        double dataPaneWidth = this.getPrefWidth();
 
         // There's currently a bug such that render() is being called while the component has a 
         // non-positive width.  Still need to track that down - suspect it's coming via an
         // IGVEventBus call.  For now, bail before trying to draw anything.
-        if (dataPanelWidth <= 0.0) {
+        if (dataPaneWidth <= 0.0) {
             return;
         }
         
-        Rectangle2D cytoRect = new Rectangle2D(0.0, 10.0, dataPanelWidth, bandHeight);
+        Rectangle2D cytoRect = new Rectangle2D(0.0, 10.0, dataPaneWidth, bandHeight);
 
-        draw(currentCytobands, graphicContext, cytoRect, frame);
+        draw(currentCytobands, graphicsContext, cytoRect, frame);
 
         int chromosomeLength = frame.getMaxCoordinate();
-        cytobandScale = ((double) chromosomeLength) / dataPanelWidth;
+        cytobandScale = ((double) chromosomeLength) / dataPaneWidth;
 
         // The test is true if we are zoomed in
         if (frame.getZoom() > 0) {
@@ -168,14 +170,14 @@ public class CytobandPane extends ContentPane {
 
             // Draw Cytoband current region viewer
             double height = cytoRect.getHeight();
-            graphicContext.setStroke(Color.RED);
+            graphicsContext.setStroke(Color.RED);
 
             double y = cytoRect.getMinY() + CYTOBAND_Y_OFFSET;
-            graphicContext.strokeRect(pixelStart, y, pixelSpan, height);
-            graphicContext.strokeRect(pixelStart - 1, (y - 1), pixelSpan + 2, height + 2);
-            graphicContext.strokeRect(pixelStart - 2, (y - 2), pixelSpan + 4, height + 4);
+            graphicsContext.strokeRect(pixelStart, y, pixelSpan, height);
+            graphicsContext.strokeRect(pixelStart - 1, (y - 1), pixelSpan + 2, height + 2);
+            graphicsContext.strokeRect(pixelStart - 2, (y - 2), pixelSpan + 4, height + 4);
             if (pixelSpan < 2) {
-                graphicContext.strokeRect(pixelStart - 2, (y - 2), pixelSpan + 4, height + 4);
+                graphicsContext.strokeRect(pixelStart - 2, (y - 2), pixelSpan + 4, height + 4);
             }
         }
     }

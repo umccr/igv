@@ -104,9 +104,16 @@ public class FeatureTrack implements Track {
 
 
     public void draw(GraphicsContext ctx, ReferenceFrame frame) {
+        ctx.setStroke(Color.rgb(200, 200, 210));
+        double displayWidth = frame.displayWidthProperty().doubleValue();
 
+        // TODO: starting working in doubles everywhere for JavaFX compatibility
         int startBP = (int) frame.getOrigin();
         int endBP = (int) frame.getEnd();
+        int featureHeight = 25;
+        
+        // Draw a border; temporary, just to show position
+        ctx.strokeRect(0.0, 0.0, displayWidth, featureHeight);
 
         List<Feature> featureList = featureMap.get(frame.getChrName());
 
@@ -118,7 +125,7 @@ public class FeatureTrack implements Track {
             if (f.getStart() > endBP) break;
 
             ctx.setFill(Color.BLUE);
-            renderer.renderFeature(f, startBP, frame.getScale(), 25, ctx);
+            renderer.renderFeature(f, startBP, frame.getScale(), featureHeight, ctx);
             // Draw rectangle for entire feature.  Exons etc to come later
 //            double p0 = (f.getStart() - frame.getOrigin()) / frame.getScale();  // Scale is in bp / pixel
 //            double p1 = (f.getEnd() - frame.getOrigin()) / frame.getScale();

@@ -434,6 +434,7 @@ public class ReferenceFrame {
         double windowWidth = (widthInPixels * getScale()) / 2;
         setOrigin(Math.round(chrLocation - windowWidth));
         eventBus.post(ViewChange.LocusChangeResult(chrName, origin, chrLocation + windowWidth));
+        centerProperty.set(chrLocation);
     }
 
     public boolean windowAtEnd() {
@@ -833,6 +834,13 @@ public class ReferenceFrame {
 
     public IntegerProperty zoomProperty() {
         return zoomProperty;
+    }
+    
+    // HACK: not set/used properly throughout the app.  Just used as a signal for change.
+    private DoubleProperty centerProperty = new SimpleDoubleProperty();
+    
+    public DoubleProperty centerProperty() {
+        return centerProperty;
     }
 }
 

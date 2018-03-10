@@ -112,7 +112,7 @@ public class IGVStageBuilder {
 
         MainContentPane mainContentPane = new MainContentPane();
         IGVMenuBarManager igvMenuBarBuilder = new IGVMenuBarManager(stage, mainContentPane);
-        IGVToolBarManager igvToolBar = new IGVToolBarManager();
+        IGVToolBarManager igvToolBar = new IGVToolBarManager(mainContentPane);
         mainContentPane.setIgvToolBarManager(igvToolBar);
 
         // Create the IGV instance and make it available to the JavaFX UI.  Not dealing with this for now.
