@@ -96,7 +96,8 @@ public class MainContentPane extends BorderPane {
 
 
     // The following should only be called within Platform.runLater() or otherwise on the Application thread
-    public TrackRow addTrackRow(String name, Track track) {
+    public TrackRow addTrackRow(Track track) {
+        String name = track.getName();
         TrackRow trackRow = new TrackRow(name, track, this);
         TrackScrollPane trackScrollPane = trackRow.getScrollPane();
         trackRowByName.put(name, trackRow);
@@ -164,5 +165,15 @@ public class MainContentPane extends BorderPane {
             return row;
         }
         return null;
+    }
+    
+    public void removeTrackRow(Track track) {
+        String name = track.getName();
+        TrackRow trackRow = trackRowByName.get(name);
+        if (trackRow != null) {
+            TrackScrollPane trackScrollPane = trackRow.getScrollPane();
+            trackContainer.getChildren().remove(trackScrollPane);
+            trackRowByName.remove(name);
+        }
     }
 }

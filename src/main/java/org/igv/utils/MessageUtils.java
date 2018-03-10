@@ -29,6 +29,8 @@
  */
 package org.igv.utils;
 
+import java.util.Optional;
+
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.broad.igv.Globals;
@@ -127,50 +129,14 @@ public class MessageUtils {
         }
         final String actMsg = message;
 
-        final ValueHolder returnValue = new ValueHolder();
-        Platform.runLater(() -> {
-            // Using a very basic dialog type for now; can elaborate later as we determine needs.
-            TextInputDialog dialog = new TextInputDialog(defaultValue);
-            dialog.setContentText(actMsg);
-            dialog.showAndWait();
-            returnValue.stringValue = dialog.getEditor().getText();
-        });
-        return returnValue.stringValue;
+        // Using a very basic dialog type for now; can elaborate later as we determine needs.
+        TextInputDialog dialog = new TextInputDialog(defaultValue);
+        dialog.setContentText(actMsg);
+        Optional<String> result = dialog.showAndWait();
+        return (result.isPresent()) ? result.get() : defaultValue;
     }
 
     public static String showInputDialog(final String message) {
         return showInputDialog(message, null);
     }
-
-
-    /**
-     * Test program - call all methods from both main and swing threads
-     *
-     * @param args
-     * @throws Exception
-     */
-
-    public static void main(String[] args) throws Exception {
-
-        Runnable runnable = new Runnable() {
-            public void run() {
-                showMessage("showMessage");
-
-                confirm("confirm");
-
-                //confirm(null, "confirm with parent");
-
-                showInputDialog("showInputDialog", "default");
-
-                showInputDialog("showInputDialog");
-            }
-        };
-
-        // Test on main thread
-        runnable.run();
-
-        // Test on swing thread
-        Platform.runLater(runnable);
-    }
-
 }

@@ -26,6 +26,8 @@ package org.igv.ui.panel;
 
 import javafx.event.EventHandler;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
 
@@ -33,8 +35,10 @@ import org.apache.log4j.Logger;
 import org.broad.igv.event.IGVEventBus;
 import org.broad.igv.event.ViewChange;
 import org.broad.igv.ui.panel.ReferenceFrame;
+import org.igv.ui.IGVBackendPlaceholder;
 import org.igv.ui.JavaFXUIUtilities;
 import org.igv.ui.Track;
+import org.igv.utils.MessageUtils;
 
 // Intended as the rough equivalent of the DataPanel class of the Swing UI.  Work in progress.
 public class DataPane extends ContentPane {
@@ -82,6 +86,35 @@ public class DataPane extends ContentPane {
             ViewChange result = ViewChange.Result();
             result.setRecordHistory(true);
             IGVEventBus.getInstance().post(result);
+        });
+        
+        MenuItem setTrackHeightMenuItem = new MenuItem("Set Track Height...");
+        setTrackHeightMenuItem.setOnAction(event -> {
+            // TODO: probably need to truncate the value fed in as default.
+            String newHeightText = MessageUtils.showInputDialog("Enter Track Height", 
+                    String.valueOf(track.prefHeightProperty().doubleValue()));
+            System.out.println("Return value: " + newHeightText);
+            try {
+                double newHeight = Double.parseDouble(newHeightText);
+                track.prefHeightProperty().set(newHeight);
+            }
+            catch (NumberFormatException nfe) {
+                System.out.println(nfe);
+                // Swallow, for now.
+            }
+        });
+        MenuItem removeTrackMenuItem = new MenuItem("Remove Track");
+        removeTrackMenuItem.setOnAction(event -> {
+            IGVBackendPlaceholder.removeTrack(track);
+        });
+        ContextMenu contextMenu = new ContextMenu(setTrackHeightMenuItem, removeTrackMenuItem);
+        
+        this.setOnContextMenuRequested(event -> {
+            contextMenu.show(this, event.getScreenX(), event.getScreenY());
+            event.consume();
+        });
+        this.setOnMousePressed(event -> {
+            contextMenu.hide();
         });
 
         this.setOnMouseReleased(new EventHandler <MouseEvent>()

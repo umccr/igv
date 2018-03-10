@@ -124,4 +124,8 @@ public class IGVBackendPlaceholder {
 
         MAIN_CONTENT_PANE.resetContent();
     }
+    
+    public static void removeTrack(Track track) {
+        MAIN_CONTENT_PANE.removeTrackRow(track);
+    }
 }

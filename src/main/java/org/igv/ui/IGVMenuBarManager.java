@@ -64,9 +64,7 @@ public class IGVMenuBarManager {
             if(selected != null) {
                 Stub.loadFile(selected);
 
-                // Name is not correct; just using for now for mock-up purposes.
-                String name = selected.getName();
-                mainContentPane.addTrackRow(name, Stub.theTrack);
+                mainContentPane.addTrackRow(Stub.theTrack);
             }
         });
         MenuItem loadFromURL = new MenuItem("Load from URL ...");

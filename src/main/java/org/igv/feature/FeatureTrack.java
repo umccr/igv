@@ -48,7 +48,7 @@ import java.util.Map;
  * Prototype track class.
  */
 public class FeatureTrack implements Track {
-
+    private String name;
 
     FeatureReader reader;
     FeatureRenderer renderer;
@@ -61,8 +61,9 @@ public class FeatureTrack implements Track {
     Map<String, List<Feature>> featureMap;
 
 
-    public FeatureTrack(ResourceLocator locator) {
-
+    public FeatureTrack(String name, ResourceLocator locator) {
+        this.name = name;
+        
         reader = FeatureReaderFactory.getReader(locator);
         renderer = new FeatureRenderer();
 
@@ -74,6 +75,10 @@ public class FeatureTrack implements Track {
 
     }
 
+    public String getName() {
+        return name;
+    }
+    
     public DoubleProperty prefHeightProperty() {
         return prefHeightProperty;
     }

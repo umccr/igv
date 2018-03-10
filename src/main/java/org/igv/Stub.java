@@ -21,7 +21,9 @@ public class Stub {
 
         if(file.getAbsolutePath().endsWith(".bed")) {
 
-            theTrack = new FeatureTrack(new ResourceLocator(file.getAbsolutePath()));
+            // Name is not correct; just using for now for mock-up purposes.
+            String name = file.getName() + "_" + System.currentTimeMillis();
+            theTrack = new FeatureTrack(name, new ResourceLocator(file.getAbsolutePath()));
 
         }
         else {
