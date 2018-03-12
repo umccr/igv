@@ -80,6 +80,7 @@ public class MessageUtils {
         log.log(level, message);
         boolean showDialog = !(Globals.isHeadless() || Globals.isSuppressMessages() || Globals.isTesting() || Globals.isBatch());
         if (showDialog) {
+            // TODO: do we need the runLater call?
             Platform.runLater(() -> {
                 // Always use HTML for message displays, but first remove any embedded <html> tags.
                 String dlgMessage = "<html>" + message.replaceAll("<html>", "");
@@ -112,13 +113,10 @@ public class MessageUtils {
             return true;
         }
 
-        final ValueHolder returnValue = new ValueHolder();
-        Platform.runLater(() -> {
-            // Using a very basic dialog type for now; can elaborate later as we determine needs.
-            Alert dialog = new Alert(AlertType.CONFIRMATION, message);
-            dialog.showAndWait().filter(response -> response == ButtonType.OK).ifPresent(response -> returnValue.boolValue = true);
-        });
-        return (Boolean) returnValue.boolValue;
+        // Using a very basic dialog type for now; can elaborate later as we determine needs.
+        Alert dialog = new Alert(AlertType.CONFIRMATION, message);
+        Optional<ButtonType> result = dialog.showAndWait();
+        return result.isPresent() && result.get() == ButtonType.OK;
     }
 
     public static String showInputDialog(String message, String defaultValue) {

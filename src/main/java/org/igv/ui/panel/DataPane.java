@@ -105,7 +105,9 @@ public class DataPane extends ContentPane {
         });
         MenuItem removeTrackMenuItem = new MenuItem("Remove Track");
         removeTrackMenuItem.setOnAction(event -> {
-            IGVBackendPlaceholder.removeTrack(track);
+            if (MessageUtils.confirm("Are you sure you want to remove this track?")) {
+                IGVBackendPlaceholder.removeTrack(track);
+            }
         });
         ContextMenu contextMenu = new ContextMenu(setTrackHeightMenuItem, removeTrackMenuItem);
         
