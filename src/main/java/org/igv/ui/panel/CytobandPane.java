@@ -62,17 +62,12 @@ import java.util.Map;
 public class CytobandPane extends ContentPane {
     private static Logger log = Logger.getLogger(CytobandPane.class);
     
-    private static double fontHeight = 10.0;
     private static final double bandHeight = 10.0;
+    private static double fontHeight = 10.0;
     private static String fontFamilyName = "Lucida Sans";
     static final public double CYTOBAND_Y_OFFSET = 5.0;
     static final public double LABEL_OFFSET = 25.0;
     private static Map<Integer, Color> stainColors = new HashMap<Integer, Color>();
-
-    private boolean isDragging = false;
-
-    private double viewOrigin;
-    private double viewEnd;
 
     private double cytobandScale;
     private List<Cytoband> currentCytobands;
@@ -86,9 +81,6 @@ public class CytobandPane extends ContentPane {
 
     public CytobandPane(ReferenceFrame frame, boolean mouseable) {
         super(frame);
-
-        viewOrigin = frame.getOrigin();
-        viewEnd = frame.getEnd();
 
         Font font = Font.font(fontFamilyName, FontWeight.BOLD, fontHeight);
         getCanvas().getGraphicsContext2D().setFont(font);
@@ -161,8 +153,8 @@ public class CytobandPane extends ContentPane {
         // The test is true if we are zoomed in
         if (frame.getZoom() > 0) {
 
-            double origin = isDragging ? viewOrigin : frame.getOrigin();
-            double end = isDragging ? viewEnd : frame.getEnd();
+            double origin = frame.getOrigin();
+            double end = frame.getEnd();
 
             double pixelStart = origin / cytobandScale;
             double pixelEnd = end / cytobandScale;

@@ -25,6 +25,7 @@
 
 package org.igv.ui.panel;
 
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
@@ -42,6 +43,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.broad.igv.Globals;
 import org.broad.igv.feature.Chromosome;
+import org.broad.igv.feature.genome.ChromosomeCoordinate;
 import org.broad.igv.feature.genome.Genome;
 import org.broad.igv.feature.genome.GenomeManager;
 import org.broad.igv.prefs.PreferencesManager;
@@ -83,12 +85,12 @@ public class RulerPane extends ContentPane {
     private Tooltip tooltip = new Tooltip(WHOLE_GENOME_TOOLTIP);
 
 
-    private static Color dragColor = Color.color(.5f, .5f, 1f, .3f);
+    private static Color dragColor = Color.color(0.5f, 0.5f, 1f, 0.3f);
     private static Color zoomBoundColor = Color.color(0.5f, 0.5f, 0.5f);
 
-    boolean dragging = false;
-    int dragStart;
-    int dragEnd;
+    private boolean dragging = false;
+    private double dragStart;
+    private double dragEnd;
 
     public RulerPane(ReferenceFrame frame) {
         super(frame);
@@ -97,6 +99,7 @@ public class RulerPane extends ContentPane {
         prefHeightProperty().set(80);
 
         Tooltip.install(this, tooltip);
+        initMouseHandlers();
 
         completeInitialization();
     }
@@ -125,6 +128,18 @@ public class RulerPane extends ContentPane {
             if (drawSpan) {
                 drawSpan(graphicsContext, i);
             }
+        }
+        
+        if (dragging) {
+            graphicsContext.setFill(dragColor);
+            double start = Math.min(dragStart, dragEnd);
+            double w = Math.abs(dragEnd - dragStart);
+            final double height = canvas.getHeight();
+            graphicsContext.fillRect(start, 0, w, height);
+
+            graphicsContext.setStroke(zoomBoundColor);
+            graphicsContext.strokeLine(dragStart, 0, dragStart, height);
+            graphicsContext.strokeLine(dragEnd, 0, dragEnd, height);
         }
     }
 
@@ -306,6 +321,68 @@ public class RulerPane extends ContentPane {
         }
     }
 
+    private void initMouseHandlers() {
+        this.setOnMouseDragged(event -> {
+            if (Math.abs(event.getX() - dragStart) > 1) {
+                dragEnd = event.getX();
+                dragging = true;
+                render();
+            }
+        });
+        this.setOnMousePressed(event -> {
+            dragStart = event.getX();
+        });
+        this.setOnMouseReleased(event -> {
+            if (dragging) {
+                dragEnd = event.getX();
+                dragging = false;
+                zoom();
+            }
+        });
+    }
+
+
+    private void zoom() {
+        Platform.runLater(() -> {
+            double s = frame.getChromosomePosition(dragStart);
+            double e = frame.getChromosomePosition(dragEnd);
+            if (e < s) {
+                double tmp = s;
+                s = e;
+                e = tmp;
+            }
+            if (e - s < 40) {
+                double c = (s + e) / 2;
+                s = c - 20;
+                e = c + 20;
+            }
+
+            s = Math.max(0.0, s);
+            String chr = null;
+            Genome genome = GenomeManager.getInstance().getCurrentGenome();
+
+            if (frame.isWholeGenomeView()) {
+
+                ChromosomeCoordinate start = genome.getChromosomeCoordinate((int) s);
+                ChromosomeCoordinate end = genome.getChromosomeCoordinate((int) e);
+
+                chr = start.getChr();
+                s = start.getCoordinate();
+                e = end.getCoordinate();
+                if (end.getChr() != start.getChr()) {
+                    e = genome.getChromosome(start.getChr()).getLength();
+                }
+            } else {
+                chr = frame.getChrName();
+                s = Math.max(0, s);
+                e = Math.min(genome.getChromosome(chr).getLength(), e);
+            }
+
+            frame.jumpTo(chr, (int) Math.min(s, e), (int) Math.max(s, e));
+            frame.recordHistory();
+        });
+    }
+    
     private void resetTooltipHandlers() {
         // Comment/uncomment the setOnMouseEntered() and the setOnMouseExited calls below to compare
         // with the cursor timing hack in IGVBackendPlaceholder.  These should be commented out
