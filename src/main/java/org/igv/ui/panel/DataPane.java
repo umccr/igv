@@ -24,12 +24,9 @@
  */
 package org.igv.ui.panel;
 
-import javafx.event.EventHandler;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
-import javafx.scene.input.MouseDragEvent;
-import javafx.scene.input.MouseEvent;
 
 import org.apache.log4j.Logger;
 import org.broad.igv.event.IGVEventBus;
@@ -44,10 +41,8 @@ import org.igv.utils.MessageUtils;
 public class DataPane extends ContentPane {
 
     private Track track;
+    private double lastMouseX;
     private boolean isDragging = false;
-
-    private double viewOrigin;
-    private double viewEnd;
 
     private static Logger log = Logger.getLogger(DataPane.class);
     
@@ -67,40 +62,24 @@ public class DataPane extends ContentPane {
     private void init() {
 
 //        this.setOnMouseClicked(event -> {
-//            System.out.println("Event on Source: mouse click");
+//            log.info("Event on Source: mouse click");
 //            double newHeight = 100.0 + (900.0 * Math.random());
-//            System.out.println("Changing track height to: " + newHeight);
+//            log.info("Changing track height to: " + newHeight);
 //            track.prefHeightProperty().set(newHeight);
 //        });
-        this.setOnMouseClicked((event) -> {
-            final double mouseX = event.getX();
-            final int clickCount = event.getClickCount();
-            double newLocation = frame.getScale() * mouseX;
-            if (clickCount > 1) {
-                final int newZoom = frame.getZoom() + 1;
-                frame.doSetZoomCenter(newZoom, newLocation);
-            } else {
-                frame.centerOnLocation(newLocation);
-            }
-
-            ViewChange result = ViewChange.Result();
-            result.setRecordHistory(true);
-            IGVEventBus.getInstance().post(result);
-        });
         
         MenuItem setTrackHeightMenuItem = new MenuItem("Set Track Height...");
         setTrackHeightMenuItem.setOnAction(event -> {
             // TODO: probably need to truncate the value fed in as default.
             String newHeightText = MessageUtils.showInputDialog("Enter Track Height", 
                     String.valueOf(track.prefHeightProperty().doubleValue()));
-            System.out.println("Return value: " + newHeightText);
             try {
                 double newHeight = Double.parseDouble(newHeightText);
                 track.prefHeightProperty().set(newHeight);
             }
             catch (NumberFormatException nfe) {
-                System.out.println(nfe);
-                // Swallow, for now.
+                log.error(nfe);
+                // Swallow exception for now.
             }
         });
         MenuItem removeTrackMenuItem = new MenuItem("Remove Track");
@@ -115,70 +94,67 @@ public class DataPane extends ContentPane {
             contextMenu.show(this, event.getScreenX(), event.getScreenY());
             event.consume();
         });
+        this.setOnMouseClicked(event -> {
+            log.info("Event on Source: mouse clicked " + event.getX());
+            if (isDragging) return;
+            
+            isDragging = false;
+            final double mouseX = event.getX();
+            final int clickCount = event.getClickCount();
+            double newLocation = frame.getScale() * mouseX;
+            if (clickCount > 1) {
+                final int newZoom = frame.getZoom() + 1;
+                frame.doSetZoomCenter(newZoom, newLocation);
+            } else {
+                frame.centerOnLocation(newLocation);
+            }
+
+            ViewChange result = ViewChange.Result();
+            result.setRecordHistory(true);
+            IGVEventBus.getInstance().post(result);
+        });
         this.setOnMousePressed(event -> {
+            log.info("Event on Source: mouse pressed " + event.getX());
             contextMenu.hide();
+            lastMouseX = event.getX();
+            isDragging = false;
         });
 
-        this.setOnMouseReleased(new EventHandler <MouseEvent>()
-        {
-            public void handle(MouseEvent event)
-            {
-                System.out.println("Event on Source: mouse released");
+        this.setOnMouseReleased(event -> {
+            log.info("Event on Source: mouse released " + event.getX());
+        });
+
+        this.setOnMouseDragged(event -> {
+            log.info("Event on Source: mouse dragged " + event.getX());
+            isDragging = true;
+            double deltaX = lastMouseX - event.getX();
+            if (Math.abs(deltaX) > 2.0) {
+                frame.shiftOriginPixels(deltaX);
+                lastMouseX = event.getX();
             }
         });
 
-        this.setOnMouseDragged(new EventHandler <MouseEvent>()
-        {
-            public void handle(MouseEvent event)
-            {
-                System.out.println("Event on Source: mouse dragged");
-                render();
-            }
-
-        });
-
-        this.setOnDragDetected(new EventHandler <MouseEvent>()
-        {
-            public void handle(MouseEvent event)
-            {
-                System.out.println("Event on Source: drag detected");
-            }
+        this.setOnDragDetected(event -> {
+            log.info("Event on Source: drag detected " + event.getX());
+            isDragging = true;
         });
 
         // Add mouse event handlers for the target
-        this.setOnMouseDragEntered(new EventHandler <MouseDragEvent>()
-        {
-            public void handle(MouseDragEvent event)
-            {
-                System.out.println("Event on Target: mouse dragged");
-            }
+        this.setOnMouseDragEntered(event -> {
+            log.info("Event on Target: mouse drag entered");
         });
 
-        this.setOnMouseDragOver(new EventHandler <MouseDragEvent>()
-        {
-            public void handle(MouseDragEvent event)
-            {
-                System.out.println("Event on Target: mouse drag over");
-            }
+        this.setOnMouseDragOver(event -> {
+            log.info("Event on Target: mouse drag over");
         });
 
-        this.setOnMouseDragReleased(new EventHandler <MouseDragEvent>()
-        {
-            public void handle(MouseDragEvent event)
-            {
-                System.out.println("Event on Target: mouse drag released");
-            }
+        this.setOnMouseDragReleased(event -> {
+            log.info("Event on Target: mouse drag released");
         });
 
-        this.setOnMouseDragExited(new EventHandler <MouseDragEvent>()
-        {
-            public void handle(MouseDragEvent event)
-            {
-                System.out.println("Event on Target: mouse drag exited");
-            }
+        this.setOnMouseDragExited(event -> {
+            log.info("Event on Target: mouse drag exited");
         });
-
-
     }
 
     protected void render() {

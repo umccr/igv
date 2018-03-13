@@ -416,11 +416,12 @@ public class ReferenceFrame {
     }
 
 
-    public void shiftOriginPixels(int delta) {
+    public void shiftOriginPixels(double delta) {
 
         double shiftBP = delta * getScale();
         setOrigin(origin + shiftBP);
         eventBus.post(ViewChange.Result());
+        centerProperty.set(centerProperty.doubleValue() + shiftBP);
     }
 
     public void centerOnLocation(String chr, double chrLocation) {
