@@ -35,7 +35,7 @@ public class TrackRow extends IGVRow<TrackNamePane, AttributePane, AxisPane, Dat
         this.name = name;
         // TODO: determine correct row & track height settings
         // The following is just a mock-up to explore sizing before we start drawing actual data.
-        double rowHeight = 200.0;
+        double rowHeight = 50.0;
         TrackScrollPane trackScrollPane = new TrackScrollPane(this);
         trackScrollPane.prefHeightProperty().set(rowHeight);
         trackScrollPane.minHeightProperty().set(rowHeight);
@@ -43,7 +43,7 @@ public class TrackRow extends IGVRow<TrackNamePane, AttributePane, AxisPane, Dat
         TrackNamePane namePane = new TrackNamePane();
         AttributePane attributePane = new AttributePane();
         AxisPane axisPane = new AxisPane();
-        DataPaneContainer contentContainer = new DataPaneContainer(track);
+        DataPaneContainer contentContainer = new DataPaneContainer(this, track);
         init(mainContentPane, namePane, attributePane, axisPane, contentContainer, trackScrollPane);
     }
 

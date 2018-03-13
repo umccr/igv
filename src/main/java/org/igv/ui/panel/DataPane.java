@@ -60,22 +60,18 @@ public class DataPane extends ContentPane {
     }
 
     private void init() {
-
-//        this.setOnMouseClicked(event -> {
-//            log.info("Event on Source: mouse click");
-//            double newHeight = 100.0 + (900.0 * Math.random());
-//            log.info("Changing track height to: " + newHeight);
-//            track.prefHeightProperty().set(newHeight);
-//        });
         
         MenuItem setTrackHeightMenuItem = new MenuItem("Set Track Height...");
         setTrackHeightMenuItem.setOnAction(event -> {
             // TODO: probably need to truncate the value fed in as default.
+            TrackScrollPane scrollPane = parent.getTrackRow().getScrollPane();
             String newHeightText = MessageUtils.showInputDialog("Enter Track Height", 
-                    String.valueOf(track.prefHeightProperty().doubleValue()));
+                    String.valueOf(scrollPane.prefHeightProperty().doubleValue()));
             try {
                 double newHeight = Double.parseDouble(newHeightText);
-                track.prefHeightProperty().set(newHeight);
+                scrollPane.prefHeightProperty().set(newHeight);
+                scrollPane.maxHeightProperty().set(newHeight);
+                scrollPane.minHeightProperty().set(newHeight);
             }
             catch (NumberFormatException nfe) {
                 log.error(nfe);
@@ -103,8 +99,14 @@ public class DataPane extends ContentPane {
             final int clickCount = event.getClickCount();
             double newLocation = frame.getScale() * mouseX;
             if (clickCount > 1) {
-                final int newZoom = frame.getZoom() + 1;
-                frame.doSetZoomCenter(newZoom, newLocation);
+                if (event.isControlDown()) {
+                    // Secret mode to randomly adjust track content size for UI development.
+                    setRandomTrackSize();
+                }
+                else {
+                    final int newZoom = frame.getZoom() + 1;
+                    frame.doSetZoomCenter(newZoom, newLocation);
+                }
             } else {
                 frame.centerOnLocation(newLocation);
             }
@@ -157,6 +159,12 @@ public class DataPane extends ContentPane {
         });
     }
 
+    private void setRandomTrackSize() {
+        double newHeight = 20.0 + (240.0 * Math.random());
+        log.info("Changing track height to: " + newHeight);
+        track.prefHeightProperty().set(newHeight);
+    }
+    
     protected void render() {
 
         GraphicsContext gc = getCanvas().getGraphicsContext2D();

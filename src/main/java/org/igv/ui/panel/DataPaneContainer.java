@@ -36,10 +36,12 @@ import org.igv.ui.Track;
 // Note: Not dealing with DnD yet.
 public class DataPaneContainer extends BorderPane {
 
+    private TrackRow trackRow;
     private Track track;
     private HBox contentPane = new HBox();
 
-    public DataPaneContainer(Track track) {
+    public DataPaneContainer(TrackRow trackRow, Track track) {
+        this.trackRow = trackRow;
         this.track = track;
         JavaFXUIUtilities.bindWidthToContainer(this, contentPane);
         setCenter(contentPane);
@@ -60,5 +62,9 @@ public class DataPaneContainer extends BorderPane {
 
     public DoubleProperty frameSpacingProperty() {
         return contentPane.spacingProperty();
+    }
+    
+    public TrackRow getTrackRow() {
+        return trackRow;
     }
 }

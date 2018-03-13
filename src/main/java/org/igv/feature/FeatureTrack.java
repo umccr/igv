@@ -55,7 +55,7 @@ public class FeatureTrack implements Track {
     
     // TODO: set height properly based on data.
     // This is a mock-up for now.
-    private DoubleProperty prefHeightProperty = new SimpleDoubleProperty(400.0);
+    private DoubleProperty prefHeightProperty = new SimpleDoubleProperty(40.0);
 
     // Static map chr -> features.  To be replaced by queryable feature source
     Map<String, List<Feature>> featureMap;
