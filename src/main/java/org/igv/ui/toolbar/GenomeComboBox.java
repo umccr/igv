@@ -1,18 +1,40 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2007-2018 Broad Institute
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
 package org.igv.ui.toolbar;
 
 import org.apache.log4j.Logger;
-import org.broad.igv.event.GenomeResetEvent;
-import org.broad.igv.event.IGVEventBus;
 import org.broad.igv.feature.genome.GenomeListItem;
 import org.broad.igv.feature.genome.GenomeManager;
 import org.broad.igv.feature.genome.GenomeServerException;
-import org.igv.utils.MessageUtils;
-import org.broad.igv.ui.panel.FrameManager;
-import org.broad.igv.ui.util.ProgressBar;
-import org.broad.igv.ui.util.ProgressMonitor;
 import org.igv.utils.LongRunningTask;
+import org.igv.utils.MessageUtils;
+import org.igv.ui.utils.ProgressBarDialog;
 
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
@@ -88,63 +110,47 @@ public class GenomeComboBox extends ComboBox<GenomeListItem> {
 
         log.info("Enter genome combo box");
 
-        // If we haven't changed genomes do nothing
-        if (genomeListItem == null || genomeListItem.getId().equalsIgnoreCase(GenomeManager.getInstance().getGenomeId())) {
+        // If we haven't changed genomes do nothing (also check for valid selection)
+        if (genomeListItem == null ||  genomeListItem.getPath() == null ||
+                genomeListItem.getId().equalsIgnoreCase(GenomeManager.getInstance().getGenomeId())) {
             return;
         }
+
+        //User selected "more", pull up dialog and revert combo box
+        if (genomeListItem == GenomeListItem.ITEM_MORE) {
+            GenomeListManager.getInstance().loadGenomeFromServer();
+            return;
+        }
+
         log.info("Loading " + genomeListItem.getDisplayableName());
 
-        final Runnable runnable = new Runnable() {
+        final Task<Void> genomeLoadTask = new Task<Void>() {
+            public Void call() {
+                log.info("Loading " + genomeListItem.getId());
 
-            ProgressMonitor monitor;
-            ProgressBar.ProgressDialog progressDialog;
+                try {
+                    GenomeManager.getInstance().loadGenome(genomeListItem.getPath(), null);
+                } catch (GenomeServerException e) {
+                    log.error("Error loading genome: " + genomeListItem.getId() + "  " + genomeListItem.getPath(), e);
+                    MessageUtils.showMessage("Error loading genome: " + genomeListItem.getDisplayableName());
+                } catch (Exception e) {
+                    log.error(e);
+                    boolean ok = MessageUtils.confirm("The genome [" + genomeListItem.getId() +
+                                    "] could not be read. Would you like to remove the selected entry?");
 
-            public void run() {
-
-                if (genomeListItem != null && genomeListItem.getPath() != null) {
-
-                    log.info("Loading " + genomeListItem.getId());
-
-                    //User selected "more", pull up dialog and revert combo box
-                    if (genomeListItem == GenomeListItem.ITEM_MORE) {
-                        GenomeListManager.getInstance().loadGenomeFromServer();
-                        return;
+                    if (ok) {
+                        GenomeListManager.getInstance().removeGenomeListItem(genomeListItem);
+                        refreshGenomeList();
+                        log.error("Error initializing genome", e);
                     }
-
-//                    LongRunningTask.submit(() -> {
-//                        monitor = new ProgressMonitor();
-//                        progressDialog = ProgressBar.showProgressDialog(null, "Loading Genome...", monitor, false);
-//                    });
-
-                    try {
-                        GenomeManager.getInstance().loadGenome(genomeListItem.getPath(), monitor);
-                    } catch (GenomeServerException e) {
-                        log.error("Error loading genome: " + genomeListItem.getId() + "  " + genomeListItem.getPath(), e);
-                        MessageUtils.showMessage("Error loading genome: " + genomeListItem.getDisplayableName());
-                    } catch (Exception e) {
-                        log.error(e);
-                        boolean ok = MessageUtils.confirm("The genome [" + genomeListItem.getId() +
-                                        "] could not be read. Would you like to remove the selected entry?");
-
-                        if (ok) {
-                            GenomeListManager.getInstance().removeGenomeListItem(genomeListItem);
-                            refreshGenomeList();
-                            log.error("Error initializing genome", e);
-                        }
-                    } finally {
-                        if (progressDialog != null) {
-                            Platform.runLater(() -> progressDialog.setVisible(false));
-                        }
-                    }
-
                 }
+                
+                return null;
             }
         };
-
-        if (Platform.isFxApplicationThread()) {
-            LongRunningTask.submit(runnable);
-		} else {
-		    runnable.run();
-		}
+        
+        ProgressBarDialog<Void> progressBarDialog = new ProgressBarDialog<>("Loading Genome...", genomeLoadTask);
+        progressBarDialog.show();
+        LongRunningTask.submit(genomeLoadTask);
     }
 }

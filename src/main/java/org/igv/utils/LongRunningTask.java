@@ -40,7 +40,6 @@ public class LongRunningTask implements Callable {
 
     private static Logger log = Logger.getLogger(LongRunningTask.class);
 
-    // This interferes with a clean JavaFX Exit.
     private static final ExecutorService threadExecutor = Executors.newFixedThreadPool(5);
 
     Runnable runnable;

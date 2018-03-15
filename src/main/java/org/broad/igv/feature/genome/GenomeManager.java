@@ -38,6 +38,10 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
+import javafx.application.Platform;
+import javafx.concurrent.Task;
+
 import org.apache.log4j.Logger;
 import org.broad.igv.DirectoryManager;
 import org.broad.igv.Globals;
@@ -56,11 +60,11 @@ import org.broad.igv.ui.IGV;
 import org.broad.igv.ui.commandbar.GenomeListManager;
 import org.broad.igv.ui.panel.FrameManager;
 import org.broad.igv.ui.util.MessageUtils;
-import org.broad.igv.ui.util.ProgressBar;
 import org.broad.igv.ui.util.ProgressMonitor;
 import org.broad.igv.ui.util.UIUtilities;
 import org.broad.igv.ui.util.download.Downloader;
 import org.broad.igv.util.*;
+import org.igv.ui.utils.ProgressBarDialog;
 
 import java.awt.*;
 import java.io.*;
@@ -152,33 +156,27 @@ public class GenomeManager {
             return; // Already loaded
         }
 
-        if (org.broad.igv.util.ParsingUtils.pathExists(genomeId)) {
+        if (ParsingUtils.pathExists(genomeId)) {
             loadGenome(genomeId, null);
 
         } else {
-            // Hack workaround until we implement a progress monitor for the JavaFX UI.
-            final Frame mainFrame = (Globals.IS_JAVAFX_UI) ? null : IGV.getMainFrame();
+            GenomeListItem item = genomeListManager.getGenomeListItem(genomeId);
+            if(item == null) {
+                MessageUtils.showMessage("Could not locate genome with ID: " + genomeId);
+            } else {
+                Task<Void> taskToFollow = new Task<Void>() {
+                    protected Void call() throws Exception {
+                        loadGenome(item.getPath(), null);
+                        return null;
+                    }
+                };
 
-            final ProgressMonitor[] monitor = {new ProgressMonitor()};
-            final ProgressBar.ProgressDialog[] progressDialog = new ProgressBar.ProgressDialog[1];
-            //UIUtilities.invokeAndWaitOnEventThread(() -> {
-            //    progressDialog[0] = ProgressBar.showProgressDialog(mainFrame, "Loading Genome...", monitor[0], false);
-            //});
-
-            try {
-                GenomeListItem item = genomeListManager.getGenomeListItem(genomeId);
-                if(item == null) {
-                    MessageUtils.showMessage("Could not locate genome with ID: " + genomeId);
-                } else {
-                    loadGenome(item.getPath(), monitor[0]);
-                }
-            } finally {
-             //   UIUtilities.invokeOnEventThread(() -> {
-             //       progressDialog[0].setVisible(false);
-             //   });
+                Platform.runLater(() -> {
+                    ProgressBarDialog<Void> progressBarDialog = new ProgressBarDialog<>("Loading Genome...", taskToFollow);
+                    progressBarDialog.show();
+                    LongRunningTask.submit(taskToFollow);
+                });
             }
-
-
         }
     }
 

@@ -1,3 +1,28 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2007-2018 Broad Institute
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
 package org.igv.ui.toolbar;
 
 import org.apache.log4j.Logger;
@@ -15,7 +40,6 @@ import org.broad.igv.ui.util.ConfirmDialog;
 import org.igv.utils.MessageUtils;
 import org.broad.igv.util.FileUtils;
 import org.broad.igv.util.HttpUtils;
-import org.broad.igv.util.LongRunningTask;
 import org.broad.igv.util.Utilities;
 
 import javafx.application.Platform;
@@ -585,7 +609,7 @@ public class GenomeListManager {
 	// TODO: port to JavaFX
     public void loadGenomeFromServer() {
         // Hack so we don't go beyond here.  Will always return.  
-    	    // Requires the GenomeSelectionDialog, etc which are not yet ready, but puts the bulk of code in place
+        // Requires the GenomeSelectionDialog, etc which are not yet ready, but puts the bulk of code in place
         if (GeneListManager.getInstance() != null) return;
         
         Runnable showDialog = () -> {
@@ -628,14 +652,8 @@ public class GenomeListManager {
             }
         };
 
-        if (Platform.isFxApplicationThread()) {
-      	    // TODO: Port LongRunningTask to JavaFX.
-            // Possible that that this will interfere with Exit due to threads.
-            LongRunningTask.submit(showDialog);
-		} else {
-		    showDialog.run();
-		}
-
+        
+        Platform.runLater(showDialog);
     }
     
     /**
