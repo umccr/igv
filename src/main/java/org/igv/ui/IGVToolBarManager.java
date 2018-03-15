@@ -69,13 +69,17 @@ public class IGVToolBarManager implements IGVEventObserver {
         
         chromosomeSelector = new ChromosomeComboBox(GenomeManager.getInstance().getCurrentGenome());
 
-        goButton.setOnAction((event) -> searchByLocus(searchTextField.getText()));
+        goButton.setOnAction(event -> searchByLocus(searchTextField.getText()));
         goButton.setId("goButton");
         HBox jumpToPane = new HBox(3, searchTextField, goButton);
         jumpToPane.setAlignment(Pos.CENTER);
 
         Button homeButton = new Button("");
         homeButton.setId("homeButton");
+        homeButton.setOnAction((event) -> {
+            homeButtonAction();
+        });
+        
         Button leftArrowButton = new Button("");
         leftArrowButton.setId("leftArrowButton");
         Button rightArrowButton = new Button("");
@@ -131,10 +135,23 @@ public class IGVToolBarManager implements IGVEventObserver {
         }
     }
 
+    private void homeButtonAction() {
+        Genome genome = GenomeManager.getInstance().getCurrentGenome();
+        if (FrameManager.isGeneListMode()) {
+            IGVBackendPlaceholder.setCurrentGeneList(null);
+        }
+        if (genome != null) {
+            String chrName = genome.getHomeChromosome();
+            if (chrName != null && !chrName.equals(chromosomeSelector.getSelectionModel().getSelectedItem())) {
+                chromosomeSelector.getSelectionModel().select(chrName);
+            }
+        }
+    }
+
     public void refreshGenomeListComboBox() {
-    	    LongRunningTask.submit(() -> {
-    			genomeSelector.refreshGenomeList();
-    		});
+        LongRunningTask.submit(() -> {
+            genomeSelector.refreshGenomeList();
+        });
     }
 
     public void updateCurrentCoordinates() {
@@ -162,8 +179,7 @@ public class IGVToolBarManager implements IGVEventObserver {
         if ((searchText != null) && (searchText.length() > 0)) {
             String homeChr = FrameManager.getDefaultFrame().getChrName();
             if (searchText.equalsIgnoreCase("home") || searchText.equalsIgnoreCase(homeChr)) {
-                // Not yet implemented
-                //homeButtonActionPerformed(null);
+                homeButtonAction();
             } else {
                 searchTextField.setText(searchText);
                 searchTextField.searchByLocus(searchText);
