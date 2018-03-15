@@ -33,8 +33,8 @@ import javafx.scene.paint.Color;
 import org.apache.log4j.Logger;
 import org.broad.igv.prefs.PreferencesManager;
 import org.broad.igv.ui.panel.FrameManager;
-import org.igv.ui.IGVToolBarManager;
 import org.igv.ui.Track;
+import org.igv.ui.toolbar.IGVToolBarManager;
 
 import java.util.Collection;
 import java.util.HashMap;

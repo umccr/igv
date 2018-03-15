@@ -40,6 +40,7 @@ import org.broad.igv.prefs.IGVPreferences;
 import org.broad.igv.prefs.PreferencesManager;
 import org.broad.igv.ui.UIConstants;
 import org.igv.ui.panel.MainContentPane;
+import org.igv.ui.toolbar.IGVToolBarManager;
 
 // Builds the Stage content.  This was originally intended as the rough equivalent of the IGV class of the Swing UI,
 // but for now is just populating the Stage.  In the long run the other IGV-equivalent responsibilities may land here,
