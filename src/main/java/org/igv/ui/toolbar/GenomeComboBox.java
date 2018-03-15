@@ -30,7 +30,7 @@ import org.broad.igv.feature.genome.GenomeListItem;
 import org.broad.igv.feature.genome.GenomeManager;
 import org.broad.igv.feature.genome.GenomeServerException;
 import org.igv.utils.LongRunningTask;
-import org.igv.utils.MessageUtils;
+import org.igv.ui.utils.MessageUtils;
 import org.igv.ui.utils.ProgressBarDialog;
 
 import javafx.application.Platform;

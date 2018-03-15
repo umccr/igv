@@ -9,10 +9,10 @@ import org.broad.igv.prefs.Constants;
 import org.broad.igv.prefs.PreferencesManager;
 import org.broad.igv.ui.IGVMenuBar;
 import org.broad.igv.ui.util.ConfirmDialog;
-import org.igv.utils.MessageUtils;
 import org.broad.igv.util.FileUtils;
 import org.broad.igv.util.HttpUtils;
 import org.broad.igv.util.Utilities;
+import org.igv.ui.utils.MessageUtils;
 
 import java.io.*;
 import java.net.URL;

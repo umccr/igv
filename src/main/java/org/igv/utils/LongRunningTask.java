@@ -27,7 +27,7 @@ package org.igv.utils;
 
 import org.apache.log4j.Logger;
 import org.broad.igv.Globals;
-import org.igv.utils.MessageUtils;
+import org.igv.ui.utils.MessageUtils;
 
 import java.util.concurrent.*;
 

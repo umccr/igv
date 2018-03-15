@@ -27,7 +27,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.igv.utils;
+package org.igv.ui.utils;
 
 import java.util.Optional;
 

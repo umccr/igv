@@ -35,7 +35,7 @@ import org.broad.igv.ui.panel.ReferenceFrame;
 import org.igv.ui.IGVBackendPlaceholder;
 import org.igv.ui.JavaFXUIUtilities;
 import org.igv.ui.Track;
-import org.igv.utils.MessageUtils;
+import org.igv.ui.utils.MessageUtils;
 
 // Intended as the rough equivalent of the DataPanel class of the Swing UI.  Work in progress.
 public class DataPane extends ContentPane {
