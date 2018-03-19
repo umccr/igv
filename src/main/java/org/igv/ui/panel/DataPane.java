@@ -107,8 +107,6 @@ public class DataPane extends ContentPane {
                     final int newZoom = frame.getZoom() + 1;
                     frame.doSetZoomCenter(newZoom, newLocation);
                 }
-            } else {
-                frame.centerOnLocation(newLocation);
             }
 
             ViewChange result = ViewChange.Result();
