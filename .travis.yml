@@ -33,7 +33,4 @@ deploy:
   file: "build_java11/distZip/*.zip"
   skip_cleanup: true
   on:
-    repo: umccr/igv
-    branches:
-      only:
-        - umccr
+    branch: umccr
