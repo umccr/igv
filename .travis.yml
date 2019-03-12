@@ -8,13 +8,13 @@ cache:
   - "$HOME/.gradle/caches/"
   - "$HOME/.gradle/wrapper/"
 jdk:
-- openjdk11
+  - openjdk11
 install:
-- "./gradlew assemble"
+  - "./gradlew assemble"
 script:
-- "./gradlew build --stacktrace"
-- "./gradlew createMacDistZip"
-- "./gradlew createWinDist"
+  - "./gradlew build --stacktrace"
+  - "./gradlew createMacDistZip"
+  - "./gradlew createWinDist"
 
 notifications:
   email: false
@@ -33,7 +33,7 @@ deploy:
   file: "build_java11/distZip/*.zip"
   skip_cleanup: true
   on:
-      repo: umccr/igv
-      branches:
-          only: 
-            - umccr
+    repo: umccr/igv
+    branches:
+      only:
+        - umccr
