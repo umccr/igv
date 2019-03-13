@@ -77,7 +77,6 @@ configurations {
         exclude group: 'ch.qos.logback', module: 'logback-classic'
         exclude group: 'io.netty', module: 'netty-codec-http2'
         exclude group: 'com.amazonaws', module: 'aws-java-sdk-kms'
-        exclude group: 'com.github.samtools', module: 'htsjdk'
         exclude group: 'com.martiansoftware', module: 'jsap'
     }
 }
@@ -90,7 +89,7 @@ dependencies {
         [group: 'com.google.protobuf', name: 'protobuf-java', version: '3.7.0-rc1'],
         [group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'],
         [group: 'commons-io', name: 'commons-io', version: '2.6'],
-        //[group: 'com.github.samtools', name: 'htsjdk', version: '2.18.2'],
+        [group: 'com.github.samtools', name: 'htsjdk', version: '2.19.0'],
         [group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.11.2'],
         [group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.11.2'],
         [group: 'org.swinglabs', name: 'swing-layout', version: '1.0.3'],
@@ -98,6 +97,7 @@ dependencies {
         [group: 'com.google.guava', name: 'guava', version: '27.0.1-jre'],
         [group: 'org.campagnelab.goby', name: 'goby-io', version: '3.3.1'],
         [group: 'org.campagnelab.icb', name: 'icb-utils', version: '2.0.2'],
+        [group: 'org.campagnelab.ext', name: 'jsap', version: '3.0.0'],
         // Apache batik deps are so old that the only working authoritative source for those jars is Eclipse
         [group: 'org.eclipse.birt.runtime', name: 'org.apache.batik.dom', version: '1.6.1.v201505192100'],
         [group: 'org.eclipse.birt.runtime.3_7_1', name: 'org.apache.batik.svggen', version: '1.6.0'],
