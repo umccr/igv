@@ -107,7 +107,7 @@ dependencies {
         [group: 'software.amazon.awssdk', name: 's3', version: '2.5.0'],
         [group: 'software.amazon.awssdk', name: 'http-client-spi', version: '2.5.0'],
         [group: 'software.amazon.awssdk', name: 'utils', version: '2.5.0'],
-        [group: 'org.slf4j', name: 'slf4j-api', version: '1.8.0-beta4']
+        [group: 'org.slf4j', name: 'slf4j-api', version: '1.7.26']
     )
 
     testImplementation(
