@@ -229,7 +229,7 @@ task createDist(type: Copy, dependsOn: copyToLib)  {
 
 task createLinuxDistZip(type: Zip, dependsOn: createDist) {
     baseName = "IGV_Linux"
-    archiveName = createLinuxDistZip.baseName + "_${version}_java11.zip"
+    archiveName = createLinuxDistZip.baseName + "_${version}.zip"
     destinationDir = file("${buildDir}/distZip")
     if (!jdkBundleLinux.equals("")) {
         with copySpec { from jdkBundleLinux into "jdk-11" }
@@ -238,7 +238,7 @@ task createLinuxDistZip(type: Zip, dependsOn: createDist) {
         exclude "*.bat"
         exclude "*.command"
     }
-    into createLinuxDistZip.baseName + "_${version}_java11"
+    into createLinuxDistZip.baseName + "_${version}"
 
     doLast {
         project.exec { commandLine('chmod', '775', createLinuxDistZip.archivePath) }
