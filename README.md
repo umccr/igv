@@ -11,6 +11,11 @@ Make sure you have a Java11 SDK installed on your machine, i.e [AWS Corretto Jav
 
 If you are a developer, [IntelliJ IDEA](https://www.jetbrains.com/idea/download/download-thanks.html) works best, while VSCode gets better Gradle/Java support.
 
+### Auth
+
+Make sure you drop this file under `~/igv/oauth-config.json`, otherwise the federated authentication will not work:
+
+
 ### Download
 
-Head out to: https://github.com/umccr/igv/releases and download the latest version
+Head out to: https://github.com/umccr/igv/releases and download the latest UMCCR version.
