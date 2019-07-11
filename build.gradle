@@ -99,6 +99,9 @@ configurations {
         //exclude group: 'org.reactivestreams', module: 'reactive-streams'
         //exclude group: 'com.typesafe.netty', module: 'netty-reactive-streams'
         //exclude group: 'com.typesafe.netty', module: 'netty-reactive-streams-http'
+
+        // Exclude very old htsjdk from Goby while we wait for https://github.com/igvteam/igv/issues/646
+        exclude group: 'com.github.samtools', module: 'htsjdk'
     }
 }
 
