@@ -1,69 +1,16 @@
 # igv
 [![Build Status](https://travis-ci.org/umccr/igv.svg?branch=umccr)](https://travis-ci.org/umccr/igv)
 
-Integrative Genomics Viewer - desktop genome visualization tool for Mac, Windows, and Linux.
+UMCCR's AWS Integrative Genomics Viewer - desktop genome visualization tool for Amazon
 
-### Building
+This is a temporary fork of [Broad's IGV](https://github.com/igvteam/igv), while the [AWS PR gets merged](https://github.com/igvteam/igv/pull/620). 
 
-These instructions are meant for developers interested in working on the IGV code.  For normal use,
-we recommend the pre-built releases available at [http://software.broadinstitute.org/software/igv/download](http://software.broadinstitute.org/software/igv/download).
+### Prerequisites
 
+Make sure you have a Java11 SDK installed on your machine, i.e [AWS Corretto Java SDK](https://docs.aws.amazon.com/corretto/latest/corretto-11-ug/downloads-list.html).
 
-Builds are executed from the IGV project directory.  Files will be created in the 'build' subdirectory.
-You may need to execute 'gradle wrapper' to set up the gradle wrapper.  This should be necessary the 
-first time only, or if you clean up the local .gradle directory.  Only do this if the './gradlew' calls
-fail.
+If you are a developer, [IntelliJ IDEA](https://www.jetbrains.com/idea/download/download-thanks.html) works best, while VSCode gets better Gradle/Java support.
 
-There are two different build options, one for Java 8 and another for Java 11.  The default is 
-to build for Java 8.  Java 8 builds are *NOT* compatible with Java 11 and vice versa.  
+### Download
 
-There are other options but these cover the most common uses:
-
-NOTE: If on a Windows platform use ```./gradlew.bat'``` in the instructions below
-
-#### Java 8
-
-* Install Gradle for your platform.  See https://gradle.org/ for details.
-
-* Use ```./gradlew createDist``` to build a distribution directory (found in ```build/IGV-dist```) containing 
-  the igv.jar and its required runtime third-party dependencies (batik-codec, goby, and log4j-core) as
-  well as helper scripts for launching.
-  
-    * These four JARs will be identical to those available in the download bundles from our website, 
-    with the exception that they will not be signed with our certificate (required for JNLP) and
-    will have slightly different build properties (timestamp, etc) in about.properties.
-    * All four JARs must be in the same location in order to run IGV.  It can be run directly from
-    'build/IGV-dist' 
-    
-  *  Launch with 'igv.sh' on UNIX, 'igv.command' on Mac, and 'igv.bat' (or 'igv_32.bat' for 32-bit Java) on Windows.  These scripts can
-    be edited to adjust JVM flags like maximum memory, etc.  
-    
-  *  All other runtime dependencies are bundled into igv.jar.  There is also an igv-minimal.jar in
-    'build/libs' containing just the IGV classes and resources for those who prefer to manage 
-    dependencies as separate files.
-
-    
-* Use ```./gradlew createToolsDist``` to build an igvtools distribution directory (found in 
-  'build/IGVTools-dist') containing the igvtools.jar and dependencies (same as for IGV, above)  
-  JAR dependencies plus helper scripts for running and launching.
-  As above, these JARs will be identical aside from signing, timestamps, etc. and all must be
-  present together to run.  See igvtools_readme.txt for more info.
-  
-* Use ```./gradlew test``` to run the test suite.  See 'src/test/README.txt' for more information about running
-  the tests.
-
-Note that Gradle creates a number of other subdirectories in 'build'.  These can be safely ignored.
-
-#### Java 11
-
-The instructions for Java 11 are nearly identical other than the need to specify the Java 11 build file
-and that the results will be found in 'build_java11' rather than 'build'.  More specifically:
-
-* Use ```./gradlew -b build_java11.gradle createDist``` to build a distribution directory with helper scripts
-  for launching.  The structure is slightly different but the concept is the same.
-  
-* Use ```./gradlew -b build_java11.gradle test``` to run the test suite.
-
-The full JAR build option is *NOT* available for Java 11 because of modularity requirements.  Also, there is no 
-separate igvtools distribution on Java 11; at present, this is folded into the normal IGV client distribution.
-
+Head out to: https://github.com/umccr/igv/releases and download the latest version

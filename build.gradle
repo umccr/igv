@@ -255,8 +255,8 @@ task createDist(type: Copy, dependsOn: copyToLib)  {
 }
 
 task createLinuxDistZip(type: Zip, dependsOn: createDist) {
-    baseName = "IGV_Linux"
-    archiveName = createLinuxDistZip.baseName + "_${version}.zip"
+    baseName = "UMCCR_AWS_IGV_Linux"
+    archiveName = createLinuxDistZip.baseName + ".zip"
     destinationDir = file("${buildDir}/distZip")
     if (!jdkBundleLinux.equals("")) {
         with copySpec { from jdkBundleLinux into "jdk-11" }
@@ -265,7 +265,7 @@ task createLinuxDistZip(type: Zip, dependsOn: createDist) {
         exclude "*.bat"
         exclude "*.command"
     }
-    into createLinuxDistZip.baseName + "_${version}"
+    into createLinuxDistZip.baseName
 
     doLast {
         project.exec { commandLine('chmod', '775', createLinuxDistZip.archivePath) }
@@ -274,47 +274,47 @@ task createLinuxDistZip(type: Zip, dependsOn: createDist) {
 
 task createMacAppDist(type: Copy, dependsOn: createDist) {
     if (!jdkBundleMac.equals("")) {
-        with copySpec { from jdkBundleMac into "IGV_OSX_${version}.app/Contents/jdk-11" }
+        with copySpec { from jdkBundleMac into "UMCCR_AWS_IGV_MacOS.app/Contents/jdk-11" }
     }
     with copySpec {
         from ("scripts/mac.app") {
             exclude "Contents/Info.plist.template"
             exclude "Contents/MacOS/JavaAppLauncher"
         }
-        into "IGV_OSX_${version}.app"
+        into "UMCCR_AWS_IGV_MacOS.app"
     }
     with copySpec {
         from ("scripts/java11/Info.plist.template")
         filter (ReplaceTokens, tokens: [ VERSION: version ])
         rename "Info.plist.template", "Info.plist"
-        into "IGV_OSX_${version}.app/Contents"
+        into "UMCCR_AWS_IGV_MacOS.app/Contents"
     }
     with copySpec {
         from ("scripts/java11/IGV_mac.app.command")
         rename "IGV_mac.app.command", "IGV"
-        into "IGV_OSX_${version}.app/Contents/MacOS"
+        into "UMCCR_AWS_IGV_MacOS.app/Contents/MacOS"
     }
     with copySpec {
         from ("web/IGV_64.png")
-        into "IGV_OSX_${version}.app/Contents/Resources"
+        into "UMCCR_AWS_IGV_MacOS.app/Contents/Resources"
     }
     with copySpec {
         from ("${buildDir}/IGV-dist/") include 'igv.args'
-        into "IGV_OSX_${version}.app/Contents/Java/"
+        into "UMCCR_AWS_IGV_MacOS.app/Contents/Java/"
     }
     with copySpec {
         from ("${buildDir}/IGV-dist/lib") include '*.jar'
-        into "IGV_OSX_${version}.app/Contents/Java/lib"
+        into "UMCCR_AWS_IGV_MacOS.app/Contents/Java/lib"
     }
     into "${buildDir}/IGV-MacApp-dist"
 
     doLast {
-        project.exec { commandLine('chmod', '775', "${buildDir}/IGV-MacApp-dist/IGV_OSX_${version}.app" ) }
+        project.exec { commandLine('chmod', '775', "${buildDir}/IGV-MacApp-dist/UMCCR_AWS_IGV_MacOS.app" ) }
     }
 }
 
 task createMacAppDistZip(type: Zip, dependsOn: createMacAppDist) {
-    archiveName = "IGV_OSX_${version}.app.zip"
+    archiveName = "UMCCR_AWS_IGV_MacOS.app.zip"
     destinationDir = file("${buildDir}/distZip")
     from "${buildDir}/IGV-MacApp-dist"
 
