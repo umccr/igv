@@ -7,7 +7,7 @@ cache:
 jdk:
   - openjdk11
 install:
-  - "./gradlew compileJava"
+  - "./gradlew build"
 script:
   - "./gradlew createMacAppDistZip"
   - "./gradlew createLinuxDistZip"
