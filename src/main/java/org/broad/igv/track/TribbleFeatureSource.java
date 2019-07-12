@@ -41,7 +41,6 @@ import org.broad.igv.util.HttpUtils;
 import org.broad.igv.util.ResourceLocator;
 import org.broad.igv.util.RuntimeUtils;
 import org.broad.igv.util.collections.CollUtils;
-import org.broad.igv.util.stream.IGVUrlHelperFactory;
 
 import java.io.File;
 import java.io.IOException;
