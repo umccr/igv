@@ -21,6 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+// XXX: Include https://broadinstitute.jfrog.io/broadinstitute/webapp/#/artifacts/browse/tree/Properties/libs-snapshot-local/com/github/samtools/htsjdk/2.19.0-48-g45cfc08-SNAPSHOT
+//  for latest jar mangling
+//apply plugin: "com.jfrog.artifactory"
+
 apply plugin: 'java'
 apply plugin: 'application'
 
