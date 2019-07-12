@@ -30,4 +30,4 @@ deploy:
   file: "build/distZip/*.zip"
   skip_cleanup: true
   on:
-      branch: umccr
+      tags: true
