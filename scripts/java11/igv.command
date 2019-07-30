@@ -5,7 +5,7 @@
 
 #apple.laf.useScreenMenuBar for Macs, to put menu bar at top of screen
 #-Xdock:name again for Macs, sets the name in menu bar
-#-Xmx4g indicates 4 gb of memory, adjust number up or down as needed
+#-Xmx10g indicates 10 gb of memory, adjust number up or down as needed
 #Add the flag -Ddevelopment = true to use features still in development
 prefix=`dirname $(readlink $0 || echo $0)`
 
@@ -18,7 +18,7 @@ else
     echo "Using system JDK."
 fi
 
-exec java -showversion --module-path="${prefix}/lib" -Xmx4g \
+exec java -showversion --module-path="${prefix}/lib" -Xmx10g \
     @"${prefix}/igv.args" \
     -Xdock:name="IGV" \
     -Xdock:icon="${prefix}/IGV_64.png" \

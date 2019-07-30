@@ -2,7 +2,7 @@
 
 #This script is intended for launch on *nix machines
 
-#-Xmx4g indicates 4 gb of memory, adjust number up or down as needed
+#-Xmx10g indicates 10 gb of memory, adjust number up or down as needed
 #Script must be in the same directory as igv.jar
 #Add the flag -Ddevelopment = true to use features still in development
 #Add the flag -Dsun.java2d.uiScale=2 for HiDPI displays
@@ -17,7 +17,7 @@ else
     echo "Using system JDK."
 fi
 
-exec java -showversion --module-path="${prefix}/lib" -Xmx8g \
+exec java -showversion --module-path="${prefix}/lib" -Xmx10g \
     @"${prefix}/igv.args" \
     -Dapple.laf.useScreenMenuBar=true \
     -Djava.net.preferIPv4Stack=true \
