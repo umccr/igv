@@ -15,11 +15,11 @@ script:
 notifications:
   email: false
 
-before_deploy:
- - git config --local user.name "igv.umccr.org"
- - git config --local user.email "services+igv@umccr.org"
- - export TRAVIS_TAG=${UMCCR-AWS-IGV-$(git log --format=%h -1)}
- - git tag $TRAVIS_TAG
+#before_deploy:
+# - git config --local user.name "igv.umccr.org"
+# - git config --local user.email "services+igv@umccr.org"
+# - export TRAVIS_TAG=${UMCCR-AWS-IGV-$(git log --format=%h -1)}
+# - git tag $TRAVIS_TAG
 
 deploy:
   provider: releases
