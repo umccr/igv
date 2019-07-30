@@ -29,8 +29,7 @@ import biz.source_code.base64Coder.Base64Coder;
 import htsjdk.samtools.seekablestream.SeekableStream;
 import htsjdk.samtools.util.ftp.FTPClient;
 import htsjdk.samtools.util.ftp.FTPStream;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.apache.tomcat.util.HttpDate;
 import org.broad.igv.Globals;
 import org.broad.igv.exceptions.HttpResponseException;
@@ -57,8 +56,8 @@ import java.io.*;
 import java.net.*;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
 import java.util.*;
+import java.util.List;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
@@ -73,7 +72,7 @@ import static org.broad.igv.util.stream.SeekableServiceStream.WEBSERVICE_URL;
  */
 public class HttpUtils {
 
-    private static Logger log = LogManager.getLogger(HttpUtils.class);
+    private static Logger log = Logger.getLogger(HttpUtils.class);
 
     private static HttpUtils instance;
 
@@ -102,7 +101,7 @@ public class HttpUtils {
 
     private HttpUtils() {
 
-        //htsjdk.tribble.util.ParsingUtils.registerHelperFactory(new IGVUrlHelper());
+        //htsjdk.tribble.util.ParsingUtils.registerHelperFactory(new IGVUrlHelperFactory());
         htsjdk.tribble.util.ParsingUtils.registerHelperClass(IGVUrlHelper.class);
 
         // if (!Globals.checkJavaVersion("1.8")) {
@@ -139,8 +138,12 @@ public class HttpUtils {
 
         if (urlString.startsWith("gs://")) {
             urlString = GoogleUtils.translateGoogleCloudURL(urlString);
-        } else if (urlString.startsWith("s3://")) {
-            urlString = AmazonUtils.translateAmazonCloudURL(urlString);
+        } else if (AmazonUtils.isAwsS3Path(urlString)) {
+            try {
+                urlString = AmazonUtils.translateAmazonCloudURL(urlString);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         if (GoogleUtils.isGoogleCloud(urlString)) {

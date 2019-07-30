@@ -25,8 +25,7 @@
 
 package org.broad.igv.session;
 
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.broad.igv.Globals;
 import org.broad.igv.data.CombinedDataSource;
 import org.broad.igv.feature.Locus;
@@ -61,15 +60,15 @@ import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
-import java.util.List;
 import java.util.*;
+import java.util.List;
 
 /**
  * Class to parse an IGV session file
  */
 public class IGVSessionReader implements SessionReader {
 
-    private static Logger log = LogManager.getLogger(IGVSessionReader.class);
+    private static Logger log = Logger.getLogger(IGVSessionReader.class);
     private static String INPUT_FILE_KEY = "INPUT_FILE_KEY";
     // Temporary values used in processing
 
@@ -470,8 +469,8 @@ public class IGVSessionReader implements SessionReader {
                     List<Track> tracks = null;
 
                     try {
-
                         tracks = igv.load(locator);
+
 
                         for (Track track : tracks) {
 

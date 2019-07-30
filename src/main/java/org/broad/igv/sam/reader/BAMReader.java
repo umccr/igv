@@ -28,8 +28,7 @@ package org.broad.igv.sam.reader;
 import htsjdk.samtools.*;
 import htsjdk.samtools.seekablestream.SeekableStream;
 import htsjdk.samtools.util.CloseableIterator;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.broad.igv.exceptions.DataLoadException;
 import org.broad.igv.sam.EmptyAlignmentIterator;
 import org.broad.igv.sam.PicardAlignment;
@@ -40,9 +39,7 @@ import org.broad.igv.util.HttpUtils;
 import org.broad.igv.util.ResourceLocator;
 import org.broad.igv.util.stream.IGVSeekableStreamFactory;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
@@ -55,7 +52,7 @@ import java.util.*;
  */
 public class BAMReader implements AlignmentReader<PicardAlignment> {
 
-    static Logger log = LogManager.getLogger(BAMReader.class);
+    static Logger log = Logger.getLogger(BAMReader.class);
 
     private final ResourceLocator locator;
 

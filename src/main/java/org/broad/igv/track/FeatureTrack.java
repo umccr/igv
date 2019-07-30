@@ -27,8 +27,7 @@ package org.broad.igv.track;
 
 import htsjdk.tribble.Feature;
 import htsjdk.tribble.TribbleException;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.broad.igv.Globals;
 import org.broad.igv.event.DataLoadedEvent;
 import org.broad.igv.event.IGVEventBus;
@@ -54,8 +53,8 @@ import org.w3c.dom.NodeList;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
-import java.util.List;
 import java.util.*;
+import java.util.List;
 
 /**
  * Track which displays features, typically showing regions of the genome
@@ -68,7 +67,7 @@ import java.util.*;
 
 public class FeatureTrack extends AbstractTrack implements IGVEventObserver {
 
-    private static Logger log = LogManager.getLogger(FeatureTrack.class);
+    private static Logger log = Logger.getLogger(FeatureTrack.class);
 
 
     public static final int MINIMUM_FEATURE_SPACING = 5;

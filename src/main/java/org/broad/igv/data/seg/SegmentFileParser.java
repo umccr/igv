@@ -27,9 +27,7 @@ package org.broad.igv.data.seg;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import htsjdk.tribble.readers.AsciiLineReader;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.broad.igv.Globals;
 import org.broad.igv.exceptions.DataLoadException;
 import org.broad.igv.exceptions.ParserException;
@@ -37,6 +35,7 @@ import org.broad.igv.feature.genome.Genome;
 import org.broad.igv.track.TrackType;
 import org.broad.igv.util.ParsingUtils;
 import org.broad.igv.util.ResourceLocator;
+import htsjdk.tribble.readers.AsciiLineReader;
 
 /**
  * Example
@@ -55,7 +54,7 @@ public class SegmentFileParser implements SegFileParser {
 
     ;
 
-    private static Logger log = LogManager.getLogger(SegmentFileParser.class);
+    private static Logger log = Logger.getLogger(SegmentFileParser.class);
 
     boolean birdsuite = false;
     int sampleColumn = 0;

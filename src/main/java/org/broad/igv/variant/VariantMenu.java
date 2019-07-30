@@ -25,8 +25,7 @@
 
 package org.broad.igv.variant;
 
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.broad.igv.track.AttributeManager;
 import org.broad.igv.track.Track;
 import org.broad.igv.track.TrackMenuUtils;
@@ -38,8 +37,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.List;
 import java.util.*;
+import java.util.List;
 
 /**
  * User: Jesse Whitworth
@@ -47,7 +46,7 @@ import java.util.*;
  */
 public class VariantMenu extends IGVPopupMenu {
 
-    private static Logger log = LogManager.getLogger(VariantMenu.class);
+    private static Logger log = Logger.getLogger(VariantMenu.class);
     private VariantTrack track;
     private Collection<String> selectedSamples;
     static boolean depthSortingDirection;

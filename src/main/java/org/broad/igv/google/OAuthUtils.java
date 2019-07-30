@@ -28,9 +28,9 @@ package org.broad.igv.google;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.broad.igv.DirectoryManager;
+import org.broad.igv.Globals;
 import org.broad.igv.batch.CommandListener;
 import org.broad.igv.event.IGVEventBus;
 import org.broad.igv.ui.util.MessageUtils;
@@ -67,7 +67,7 @@ import java.util.prefs.Preferences;
  */
 public class OAuthUtils {
 
-    private static Logger log = LogManager.getLogger(OAuthUtils.class);
+    private static Logger log = Logger.getLogger(OAuthUtils.class);
 
     private String authProvider = "";
     private String appIdURI = null;
@@ -91,7 +91,7 @@ public class OAuthUtils {
     private String authorizationCode;
     private String accessToken;
     private String refreshToken;
-    private static long expirationTime;
+    private static long expirationTime; // in milliseconds
 
     private static OAuthUtils theInstance;
     private String currentUserName;
@@ -114,6 +114,7 @@ public class OAuthUtils {
 
     private OAuthUtils() throws IOException {
         // XXX: Refactor/rethink this for multiple providers
+        // SECURITY: this is definitely a bad practice, we should NOT persist (refresh) tokens locally, ever.
         //restoreRefreshToken();
         fetchOauthProperties();
     }
@@ -149,15 +150,6 @@ public class OAuthUtils {
                                                   "authorization_endpoint or token_endpoint");
             }
             
-            // XXX: What is this for exactly @jrobinso?
-            // JsonElement je = obj.get("find_string");
-            // if (je != null) {
-            //     findString = je.getAsString();
-            // }
-            // je = obj.get("replace_string");
-            // if (je != null) {
-            //     replaceString = je.getAsString();
-
             // Optional or custom attributes, fail on runtime, depending on identity provider configuration
             clientSecret = obj.has("client_secret") ? obj.get("client_secret").getAsString() : null;
             setAuthProvider(obj.has("auth_provider") ? obj.get("auth_provider").getAsString() : authProvider);
@@ -323,7 +315,8 @@ public class OAuthUtils {
         }
 
         // Try to store in java.util.prefs
-        saveRefreshToken();
+        // SECURITY: @igvteam, this is definitely a bad practice, we should NOT persist (refresh) tokens locally, ever.
+        // saveRefreshToken();
     }
 
 
@@ -338,8 +331,6 @@ public class OAuthUtils {
         // properties moved to early init dwm08
         //if (clientId == null) fetchOauthProperties();
 
-        URL url = HttpUtils.createURL(tokenURI);
-
         Map<String, String> params = new HashMap<String, String>();
         params.put("refresh_token", refreshToken);
         params.put("client_id", clientId);
@@ -350,6 +341,9 @@ public class OAuthUtils {
         if (appIdURI != null) {
             params.put("resource", appIdURI);
         }
+
+        // Poke the token refresh endpoint to get new access key
+        URL url = HttpUtils.createURL(tokenURI);
 
         String response = HttpUtils.getInstance().doPost(url, params);
         JsonParser parser = new JsonParser();
@@ -365,6 +359,8 @@ public class OAuthUtils {
             // Refresh token has failed, reauthorize from scratch
             reauthorize();
         }
+
+        // XXX: Make sure we re-presign all URLs and re-load all tracks?
 
     }
 
@@ -400,7 +396,8 @@ public class OAuthUtils {
     public String getAccessToken() {
 
         // Check expiration time, with 1 minute cushion
-        if (accessToken == null || (System.currentTimeMillis() > (expirationTime - 60 * 1000))) {
+        if (accessToken == null || (System.currentTimeMillis() > (expirationTime - Globals.TOKEN_EXPIRE_GRACE_TIME))) {
+        log.debug("Refreshing access token!");
             if (refreshToken != null) {
                 try {
                     this.refreshAccessToken();
@@ -419,7 +416,9 @@ public class OAuthUtils {
     *
     */
     public static Duration getExpirationTime() {
-        return Duration.ofMillis(expirationTime - System.currentTimeMillis());
+        Duration expiration = Duration.ofMillis(expirationTime - System.currentTimeMillis());
+        log.debug("Current expiration time of credentials (and presigned urls is): "+ expiration.toSeconds() + " seconds and expirationTime in class is: "+expirationTime);
+        return expiration;
     }
 
     public static Date getExpirationDate() {
@@ -499,7 +498,8 @@ public class OAuthUtils {
     public void updateSaveOption(boolean aBoolean) {
         if (aBoolean) {
             if (refreshToken != null) {
-                saveRefreshToken();
+                // SECURITY: this is definitely a bad practice, we should NOT persist (refresh) tokens locally, ever.
+                //saveRefreshToken();
             }
         } else {
             removeRefreshToken();

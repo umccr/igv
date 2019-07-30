@@ -1,5 +1,14 @@
 package org.broad.igv.util;
 
+/*
+*
+* This is a transitional class until the official java-aws-sdk-v2 includes a S3 URL presigners class, see:
+*
+* https://github.com/aws/aws-sdk-java-v2/issues/849#issuecomment-468892839
+* https://github.com/aws/aws-sdk-java-v2/issues/203
+*
+*/
+
 import java.io.ByteArrayInputStream;
 import java.net.URI;
 import java.time.Duration;
@@ -101,7 +110,7 @@ public class S3Presigner {
 				presigner.timeOffset = 2;
 			}
 
-			S3ClientBuilder s3Builder = S3Client.builder().region(presigner.region);
+			S3ClientBuilder s3Builder = S3Client.builder().region(presigner.region).credentialsProvider(presigner.awsCredentialsProvider);
 			s3Builder.overrideConfiguration(ClientOverrideConfiguration.builder().addExecutionInterceptor(presigner.presignInterceptor).build());
 			s3Builder.httpClient(new NullSdkHttpClient());
 			presigner.s3Client = s3Builder.build();
@@ -167,8 +176,9 @@ public class S3Presigner {
 			// remove all headers because a Browser that downloads the shared URL will not send the exact values. X-Amz-SignedHeaders should only contain the host header.
 			SdkHttpFullRequest modifiedSdkRequest = (SdkHttpFullRequest) context.httpRequest().toBuilder().clearHeaders().build();
 
+
 			executionAttributes.putAttribute(AwsSignerExecutionAttribute.AWS_CREDENTIALS, awsCredentialsProvider.resolveCredentials());
-			executionAttributes.putAttribute(AwsSignerExecutionAttribute.PRESIGNER_EXPIRATION, Instant.ofEpochSecond(0).plus(expirationTime));
+			executionAttributes.putAttribute(AwsSignerExecutionAttribute.PRESIGNER_EXPIRATION, Instant.ofEpochSecond(System.currentTimeMillis()/1000).plus(expirationTime));
 			executionAttributes.putAttribute(AwsSignerExecutionAttribute.SERVICE_SIGNING_NAME, "s3");
 			executionAttributes.putAttribute(AwsSignerExecutionAttribute.SIGNING_REGION, region);
 			executionAttributes.putAttribute(AwsSignerExecutionAttribute.TIME_OFFSET, timeOffset);

@@ -28,8 +28,7 @@ package org.broad.igv.track;
 import htsjdk.tribble.AsciiFeatureCodec;
 import htsjdk.tribble.Feature;
 import htsjdk.variant.vcf.VCFHeader;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.broad.igv.bbfile.BBFileReader;
 import org.broad.igv.bigwig.BigWigDataSource;
 import org.broad.igv.blast.BlastMapping;
@@ -45,7 +44,6 @@ import org.broad.igv.feature.GisticFileParser;
 import org.broad.igv.feature.MutationTrackLoader;
 import org.broad.igv.feature.ShapeFileUtils;
 import org.broad.igv.feature.basepair.BasePairTrack;
-import org.broad.igv.bedpe.BedPEFeature;
 import org.broad.igv.bedpe.BedPEParser;
 import org.broad.igv.bedpe.InteractionTrack;
 import org.broad.igv.feature.bionano.SMAPParser;
@@ -85,10 +83,7 @@ import org.broad.igv.ui.util.ConfirmDialog;
 import org.broad.igv.ui.util.ConvertFileDialog;
 import org.broad.igv.ui.util.ConvertOptions;
 import org.broad.igv.ui.util.MessageUtils;
-import org.broad.igv.util.FileUtils;
-import org.broad.igv.util.HttpUtils;
-import org.broad.igv.util.ParsingUtils;
-import org.broad.igv.util.ResourceLocator;
+import org.broad.igv.util.*;
 import org.broad.igv.variant.VariantTrack;
 import org.broad.igv.variant.util.PedigreeUtils;
 
@@ -106,7 +101,7 @@ import static org.broad.igv.prefs.Constants.*;
  */
 public class TrackLoader {
 
-    private static Logger log = LogManager.getLogger(TrackLoader.class);
+    private static Logger log = Logger.getLogger(TrackLoader.class);
 
     private static Collection<? extends Class> NOLogExceptions = Arrays.asList(TribbleIndexNotFoundException.class);
 
@@ -125,8 +120,12 @@ public class TrackLoader {
         if (GoogleUtils.isGoogleDrive(path) || GoogleUtils.isGoogleCloud(path)) {
             GoogleUtils.checkLogin();
         }
+//        // Check if the AWS credentials are still valid. If not, re-login and renew pre-signed urls
+        if (AmazonUtils.isAwsS3Path(path)) {
+            AmazonUtils.checkLogin();
+        }
 
-        log.info("Loading resource, path " + path);
+        log.debug("Loading resource, path " + path);
         try {
             String typeString = locator.getTypeString();
 
@@ -233,7 +232,6 @@ public class TrackLoader {
                     tp = new TrackProperties();
                     ParsingUtils.parseTrackLine(trackLine, tp);
                 }
-
                 for (Track track : newTracks) {
                     if (locator.getFeatureInfoURL() != null) {
                         track.setUrl(locator.getFeatureInfoURL());
@@ -373,7 +371,7 @@ public class TrackLoader {
 
 
     private void loadBedPEFile(ResourceLocator locator, List<Track> newTracks, Genome genome) throws IOException {
-        List<BedPEFeature> features = BedPEParser.parse(locator.getPath(), genome);
+        BedPEParser.Dataset features = BedPEParser.parse(locator, genome);
         newTracks.add(new InteractionTrack(locator, features, genome));
     }
 

@@ -1,7 +1,6 @@
 package org.broad.igv.bedpe;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.log4j.Logger;
 import org.broad.igv.Globals;
 import org.broad.igv.feature.genome.Genome;
 import org.broad.igv.prefs.Constants;
@@ -22,6 +21,8 @@ import org.w3c.dom.Element;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.*;
 import java.util.List;
 
@@ -34,12 +35,13 @@ import static org.broad.igv.track.TrackMenuUtils.refresh;
  */
 public class InteractionTrack extends AbstractTrack {
 
-    private static Logger log = LogManager.getLogger(InteractionTrack.class);
+    private static Logger log = Logger.getLogger(InteractionTrack.class);
 
     protected static final int AXIS_AREA_WIDTH = 60;
     protected static Color axisLineColor = new Color(255, 180, 180);
     private JCheckBoxMenuItem autoscaleCB;
     private JMenuItem maxScoreItem;
+
 
     enum Direction {UP, DOWN}
 
@@ -47,7 +49,7 @@ public class InteractionTrack extends AbstractTrack {
 
     private Genome genome;
     InteractionTrack.Direction direction = UP; //DOWN;
-    GraphType graphType = GraphType.NESTED_ARC;  // GraphType.block; //
+    GraphType graphType;  // GraphType.block; //
     int thickness = 1;
     boolean autoscale = true;
     double maxScore = -1;
@@ -62,9 +64,10 @@ public class InteractionTrack extends AbstractTrack {
     public InteractionTrack() {
     }
 
-    public InteractionTrack(ResourceLocator locator, List<BedPEFeature> featureList, Genome genome) {
+    public InteractionTrack(ResourceLocator locator, BedPEParser.Dataset dataset, Genome genome) {
+
         super(locator);
-        init(featureList, genome);
+        init(dataset.features, genome);
         this.genome = genome;
         setHeight(250, true);
         setColor(new Color(180, 25, 137));
@@ -82,7 +85,11 @@ public class InteractionTrack extends AbstractTrack {
                 log.error("Illegal graph type: " + typeString, e);
                 graphType = GraphType.NESTED_ARC; // default
             }
+        } else {
+            graphType = dataset.type == BedPEParser.DatasetType.TENX ? GraphType.PROPORTIONAL_ARC : GraphType.NESTED_ARC;
         }
+
+
         String directionString = PreferencesManager.getPreferences().get(Constants.ARC_DIRECTION);
         if (directionString != null) {
             try {
@@ -91,6 +98,8 @@ public class InteractionTrack extends AbstractTrack {
                 log.error("Illegal arc direction: " + directionString, e);
                 direction = UP; // default
             }
+        } else {
+            direction = UP;
         }
     }
 

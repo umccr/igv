@@ -25,12 +25,7 @@
 
 package org.broad.igv.feature.tribble;
 
-import htsjdk.tribble.AsciiFeatureCodec;
-import htsjdk.tribble.Feature;
-import htsjdk.tribble.exception.CodecLineParsingException;
-import htsjdk.tribble.readers.LineIterator;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.broad.igv.Globals;
 import org.broad.igv.exceptions.ParserException;
 import org.broad.igv.feature.BasicFeature;
@@ -45,6 +40,10 @@ import org.broad.igv.util.ParsingUtils;
 import org.broad.igv.util.StringUtils;
 import org.broad.igv.util.collections.CI;
 import org.broad.igv.util.collections.MultiMap;
+import htsjdk.tribble.AsciiFeatureCodec;
+import htsjdk.tribble.Feature;
+import htsjdk.tribble.exception.CodecLineParsingException;
+import htsjdk.tribble.readers.LineIterator;
 
 import java.util.*;
 
@@ -67,7 +66,7 @@ import java.util.*;
  */
 public class GFFCodec extends AsciiFeatureCodec<Feature> {
 
-    private static Logger log = LogManager.getLogger(GFFCodec.class);
+    private static Logger log = Logger.getLogger(GFFCodec.class);
 
 
     static HashSet<String> ignoredTypes = new HashSet();
@@ -221,10 +220,10 @@ public class GFFCodec extends AsciiFeatureCodec<Feature> {
         int end;
         int col = 3;
         try {
-            start = Integer.parseInt(tokens[col]) - 1;
+            start = (int)Double.parseDouble(tokens[col]) - 1;
             if (start < 0) throw new ParserException("Start index must be 1 or larger; GFF is 1-based", -1, line);
             col++;
-            end = Integer.parseInt(tokens[col]);
+            end = (int) Double.parseDouble(tokens[col]);
         } catch (NumberFormatException ne) {
             String msg = String.format("Column %d must contain a numeric value. %s", col + 1, ne.getMessage());
             throw new ParserException(msg, -1, line);

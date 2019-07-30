@@ -29,20 +29,23 @@
  */
 package org.broad.igv.feature;
 
-import htsjdk.tribble.AsciiFeatureCodec;
-import htsjdk.tribble.Feature;
-import htsjdk.tribble.FeatureCodec;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.broad.igv.Globals;
 import org.broad.igv.exceptions.ParserException;
 import org.broad.igv.feature.genome.Genome;
 import org.broad.igv.feature.tribble.CodecFactory;
+import org.broad.igv.feature.tribble.FeatureFileHeader;
+import org.broad.igv.track.FeatureCollectionSource;
+import org.broad.igv.track.FeatureTrack;
 import org.broad.igv.track.TrackProperties;
 import org.broad.igv.track.TrackType;
 import org.broad.igv.ui.IGV;
 import org.broad.igv.util.ParsingUtils;
 import org.broad.igv.util.ResourceLocator;
+import htsjdk.tribble.AbstractFeatureReader;
+import htsjdk.tribble.AsciiFeatureCodec;
+import htsjdk.tribble.Feature;
+import htsjdk.tribble.FeatureCodec;
 
 import java.io.BufferedReader;
 import java.io.FileWriter;
@@ -50,13 +53,14 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author jrobinso
  */
 public abstract class AbstractFeatureParser implements FeatureParser {
 
-    private static Logger log = LogManager.getLogger(IGV.class);
+    private static Logger log = Logger.getLogger(IGV.class);
     protected int startBase = 0;
     boolean gffTags = false;
 

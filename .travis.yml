@@ -1,17 +1,16 @@
-sudo: false
 language: java
 cache:
   directories:
-  - "$HOME/.gradle/caches/"
-  - "$HOME/.gradle/wrapper/"
-jdk:
-  - openjdk11
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
+jdk: openjdk11
 install:
-  - "./gradlew assemble"
+- ./gradlew assemble
 script:
-  - "./gradlew createMacAppDistZip"
-  - "./gradlew createLinuxDistZip"
-#  - "./gradlew createWinDist"
+  - ./gradlew check --debug
+  - ./gradlew createMacAppDistZip
+  - ./gradlew createLinuxDistZip
+  - ./gradlew createWinDistZip
 
 notifications:
   email: false

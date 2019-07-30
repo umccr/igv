@@ -26,14 +26,13 @@
 package org.broad.igv.feature.tribble;
 
 import htsjdk.samtools.util.LocationAware;
-import htsjdk.tribble.AbstractFeatureCodec;
-import htsjdk.tribble.FeatureCodecHeader;
-import htsjdk.tribble.readers.PositionalBufferedStream;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.broad.igv.feature.BasicFeature;
 import org.broad.igv.feature.Exon;
 import org.broad.igv.feature.Strand;
+import htsjdk.tribble.AbstractFeatureCodec;
+import htsjdk.tribble.FeatureCodecHeader;
+import htsjdk.tribble.readers.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -49,7 +48,7 @@ import java.util.List;
  */
 public class EMBLTableCodec extends AbstractFeatureCodec<BasicFeature, EMBLTableCodec.EmblTableIterator> {
 
-    private static Logger log = LogManager.getLogger(EMBLTableCodec.class);
+    private static Logger log = Logger.getLogger(EMBLTableCodec.class);
 
     public EMBLTableCodec() {
         super(BasicFeature.class);
@@ -124,7 +123,7 @@ public class EMBLTableCodec extends AbstractFeatureCodec<BasicFeature, EMBLTable
 
     static class EmblRecord {
 
-        private static Logger log = LogManager.getLogger(EmblRecord.class);
+        private static Logger log = Logger.getLogger(EmblRecord.class);
 
         boolean isNegative;
         private String type;

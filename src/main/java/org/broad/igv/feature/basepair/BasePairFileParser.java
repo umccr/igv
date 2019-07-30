@@ -1,8 +1,6 @@
 package org.broad.igv.feature.basepair;
 
-import htsjdk.tribble.readers.AsciiLineReader;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.broad.igv.Globals;
 import org.broad.igv.exceptions.ParserException;
 import org.broad.igv.feature.genome.Genome;
@@ -10,14 +8,14 @@ import org.broad.igv.ui.color.ColorUtilities;
 import org.broad.igv.util.ParsingUtils;
 import org.broad.igv.util.ResourceLocator;
 import org.broad.igv.util.StringUtils;
+import htsjdk.tribble.readers.AsciiLineReader;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 
 public class BasePairFileParser {
 
-    static Logger log = LogManager.getLogger(BasePairFileParser.class);
+    static Logger log = Logger.getLogger(BasePairFileParser.class);
 
     public static void loadData(ResourceLocator locator,
                                 Genome genome,

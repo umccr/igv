@@ -27,6 +27,8 @@ package org.broad.igv.ui.action;
 
 import junit.framework.AssertionFailedError;
 import org.broad.igv.AbstractHeadlessTest;
+import org.broad.igv.feature.BasicFeature;
+import org.broad.igv.feature.NamedFeature;
 import org.broad.igv.feature.genome.Genome;
 import org.broad.igv.util.TestUtils;
 import org.junit.Before;
@@ -38,8 +40,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 
 /**

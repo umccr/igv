@@ -26,8 +26,7 @@
 package org.broad.igv.sam;
 
 
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.broad.igv.Globals;
 import org.broad.igv.event.AlignmentTrackEvent;
 import org.broad.igv.event.IGVEventBus;
@@ -79,8 +78,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
 import java.text.NumberFormat;
-import java.util.List;
 import java.util.*;
+import java.util.List;
 
 import static org.broad.igv.prefs.Constants.*;
 
@@ -90,7 +89,7 @@ import static org.broad.igv.prefs.Constants.*;
 
 public class AlignmentTrack extends AbstractTrack implements IGVEventObserver {
 
-    private static Logger log = LogManager.getLogger(AlignmentTrack.class);
+    private static Logger log = Logger.getLogger(AlignmentTrack.class);
 
     public static final int GROUP_LABEL_HEIGHT = 10;
 
@@ -1238,21 +1237,10 @@ public class AlignmentTrack extends AbstractTrack implements IGVEventObserver {
 
     private static IGVPreferences getPreferences(ExperimentType type) {
 
-        try {
-            // Disable experimentType preferences for 2.4
-            if (Globals.VERSION.contains("2.4")) {
-                return PreferencesManager.getPreferences(NULL_CATEGORY);
-            } else {
-                String prefKey = Constants.NULL_CATEGORY;
-                if (type == ExperimentType.THIRD_GEN) {
-                    prefKey = Constants.THIRD_GEN;
-                } else if (type == ExperimentType.RNA) {
-                    prefKey = Constants.RNA;
-                }
-                return PreferencesManager.getPreferences(prefKey);
-            }
-        } catch (NullPointerException e) {
-            log.info("Application version seems to be null or garbled?");
+        // Disable experimentType preferences for 2.4
+        if (Globals.VERSION.contains("2.4")) {
+            return PreferencesManager.getPreferences(NULL_CATEGORY);
+        } else {
             String prefKey = Constants.NULL_CATEGORY;
             if (type == ExperimentType.THIRD_GEN) {
                 prefKey = Constants.THIRD_GEN;

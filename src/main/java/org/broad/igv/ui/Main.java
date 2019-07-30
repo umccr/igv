@@ -28,8 +28,8 @@ package org.broad.igv.ui;
 import com.jidesoft.plaf.LookAndFeelFactory;
 import com.sanityinc.jargs.CmdLineParser;
 import htsjdk.samtools.seekablestream.SeekableStreamFactory;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+
+import org.apache.log4j.Logger;
 import org.broad.igv.DirectoryManager;
 import org.broad.igv.Globals;
 import org.broad.igv.prefs.IGVPreferences;
@@ -73,7 +73,7 @@ import static org.broad.igv.prefs.Constants.*;
  */
 public class Main {
 
-    private static Logger log = LogManager.getLogger(Main.class);
+    private static Logger log = Logger.getLogger(Main.class);
 
     /**
      * Launch an igv instance as a stand-alone application in its own Frame.
@@ -84,9 +84,7 @@ public class Main {
 
         Thread.setDefaultUncaughtExceptionHandler(new DefaultExceptionHandler());
 
-        //final Main.IGVArgs igvArgs = new Main.IGVArgs(args);
-        String flargs[] = new String[0];
-        final Main.IGVArgs igvArgs = new Main.IGVArgs(flargs);
+        final Main.IGVArgs igvArgs = new Main.IGVArgs(args);
 
         // Do this early
         if (igvArgs.igvDirectory != null) {
@@ -412,8 +410,6 @@ public class Main {
         public String igvDirectory = null;
         public String forceVersion = null;
 
-//      XXX: Clashes with -D JVM parameters:
-//       "com.sanityinc.jargs.CmdLineParser$UnknownSuboptionException: Illegal option: 'D' in '-Dfile.encoding=UTF-8'"
         IGVArgs(String[] args) {
             if (args != null) {
                 parseArgs(args);

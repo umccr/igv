@@ -25,10 +25,8 @@
 
 package org.broad.igv.data;
 
-import htsjdk.tribble.readers.AsciiLineReader;
 import org.apache.commons.math3.stat.StatUtils;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.broad.igv.Globals;
 import org.broad.igv.exceptions.ParserException;
 import org.broad.igv.feature.genome.Genome;
@@ -39,6 +37,7 @@ import org.broad.igv.util.ResourceLocator;
 import org.broad.igv.util.collections.DownsampledDoubleArrayList;
 import org.broad.igv.util.collections.FloatArrayList;
 import org.broad.igv.util.collections.IntArrayList;
+import htsjdk.tribble.readers.AsciiLineReader;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -50,7 +49,7 @@ import java.util.Set;
  */
 public class WiggleParser {
 
-    private static Logger log = LogManager.getLogger(WiggleParser.class);
+    private static Logger log = Logger.getLogger(WiggleParser.class);
     protected int chrColumn = 0;
     protected int startColumn = 1;
     protected int endColumn = 2;

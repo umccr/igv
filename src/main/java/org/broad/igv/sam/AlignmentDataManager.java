@@ -25,10 +25,8 @@
 
 package org.broad.igv.sam;
 
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-import org.broad.igv.event.IGVEventBus;
-import org.broad.igv.event.IGVEventObserver;
+import org.apache.log4j.Logger;
+import org.broad.igv.Globals;
 import org.broad.igv.event.RefreshEvent;
 import org.broad.igv.feature.Chromosome;
 import org.broad.igv.feature.Range;
@@ -38,12 +36,17 @@ import org.broad.igv.prefs.PreferencesManager;
 import org.broad.igv.sam.AlignmentTrack.SortOption;
 import org.broad.igv.sam.reader.AlignmentReaderFactory;
 import org.broad.igv.track.RenderContext;
+import org.broad.igv.event.IGVEventBus;
+import org.broad.igv.event.IGVEventObserver;
 import org.broad.igv.track.Track;
 import org.broad.igv.ui.panel.FrameManager;
 import org.broad.igv.ui.panel.ReferenceFrame;
+import org.broad.igv.util.AmazonUtils;
 import org.broad.igv.util.ResourceLocator;
+import org.broad.igv.util.collections.IntArrayList;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.*;
 
 import static org.broad.igv.prefs.Constants.*;
@@ -55,7 +58,7 @@ import static org.broad.igv.prefs.Constants.*;
 
 public class AlignmentDataManager implements IGVEventObserver {
 
-    private static Logger log = LogManager.getLogger(AlignmentDataManager.class);
+    private static Logger log = Logger.getLogger(AlignmentDataManager.class);
 
 
     private List<AlignmentInterval> intervalCache;
@@ -72,6 +75,12 @@ public class AlignmentDataManager implements IGVEventObserver {
 
     public AlignmentDataManager(ResourceLocator locator, Genome genome) throws IOException {
         this.locator = locator;
+        // XXX: Explain better why we need this to happen exactly here, i.e, elaborate on:
+        // XXX: 1. Why S3 Select is not an option.
+        // XXX: 2. How using (pre)-signed URLs is beneficial in terms of IGV (http classes) code reuse and security.
+        // XXX: 3. Just caching, limiting outbound requests if presigned url is valid, does not slow down the regular reads.
+        // The time-gated limit for an AWS signed URL has expired, we need to re-sign the URL with the newly acquired
+        // access token, otherwise we will face an Access Denied error.
         reader = new AlignmentTileLoader(AlignmentReaderFactory.getReader(locator));
         peStats = new HashMap();
         initLoadOptions();
@@ -121,7 +130,7 @@ public class AlignmentDataManager implements IGVEventObserver {
             // Build a chr size -> name lookup table.   We will assume sizes are unique.  This will be used if no alias
             // is defined for a sequence.
             Map<Long, String> inverseDict = null;
-            Map<String, Long> sequenceDictionary = reader.getSequenceDictionary();
+            Map<String, Long> sequenceDictionary = checkReader().getSequenceDictionary();
 
             if (sequenceDictionary != null) {
 
@@ -153,7 +162,7 @@ public class AlignmentDataManager implements IGVEventObserver {
             }
 
 
-            List<String> seqNames = reader.getSequenceNames();
+            List<String> seqNames = checkReader().getSequenceNames();
             if (seqNames != null) {
                 for (String seq : seqNames) {
 
@@ -177,7 +186,7 @@ public class AlignmentDataManager implements IGVEventObserver {
     }
 
     public AlignmentTileLoader getReader() {
-        return reader;
+        return checkReader();
     }
 
     public ResourceLocator getLocator() {
@@ -189,15 +198,15 @@ public class AlignmentDataManager implements IGVEventObserver {
     }
 
     public boolean isPairedEnd() {
-        return reader.isPairedEnd();
+        return checkReader().isPairedEnd();
     }
 
     public boolean hasYCTags() {
-        return reader.hasYCTags();
+        return checkReader().hasYCTags();
     }
 
     public boolean hasIndex() {
-        return reader.hasIndex();
+        return checkReader().hasIndex();
     }
 
     public void setInferredExperimentType(AlignmentTrack.ExperimentType inferredExperimentType) {
@@ -230,11 +239,11 @@ public class AlignmentDataManager implements IGVEventObserver {
      * @return
      */
     public List<String> getSequenceNames() throws IOException {
-        return reader.getSequenceNames();
+        return checkReader().getSequenceNames();
     }
 
     public Map<String, Long> getSequenceDictionary() {
-        return reader.getSequenceDictionary();
+        return checkReader().getSequenceDictionary();
     }
 
 
@@ -401,7 +410,7 @@ public class AlignmentDataManager implements IGVEventObserver {
 
         ReadStats readStats = new ReadStats();
 
-        AlignmentTileLoader.AlignmentTile t = reader.loadTile(sequence, start, end, spliceJunctionHelper,
+        AlignmentTileLoader.AlignmentTile t = checkReader().loadTile(sequence, start, end, spliceJunctionHelper,
                 downsampleOptions, readStats, peStats, bisulfiteContext);
 //
         if (inferredExperimentType == null) {
@@ -547,21 +556,35 @@ public class AlignmentDataManager implements IGVEventObserver {
     }
 
     public boolean isTenX() {
-        return reader.isTenX();
+        return checkReader().isTenX();
     }
 
     public boolean isPhased() {
-        return reader.isPhased();
+        return checkReader().isPhased();
     }
 
     public boolean isMoleculo() {
-        return reader.isMoleculo();
+        return checkReader().isMoleculo();
     }
 
     public Collection<AlignmentInterval> getLoadedIntervals() {
         return intervalCache;
     }
 
+    private AlignmentTileLoader checkReader() {
+        try {
+            String aPath = locator.getPath();
+            if (AmazonUtils.isAwsS3Path(aPath) && !AmazonUtils.isS3PresignedValid(aPath)) {
+                reader = new AlignmentTileLoader(AlignmentReaderFactory.getReader(locator));
+            }
+        } catch(MalformedURLException e){
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return reader;
+    }
 
     public static class DownsampleOptions {
         private boolean downsample;

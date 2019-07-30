@@ -29,8 +29,7 @@ package org.broad.igv.ui.action;
 //~--- non-JDK imports --------------------------------------------------------
 
 import htsjdk.tribble.Feature;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.broad.igv.Globals;
 import org.broad.igv.annotations.ForTesting;
 import org.broad.igv.feature.*;
@@ -47,8 +46,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.List;
 import java.util.*;
+import java.util.List;
 
 /**
  * A class for performing search actions.  The class takes a view context and
@@ -64,7 +63,7 @@ import java.util.*;
  */
 public class SearchCommand {
 
-    private static Logger log = LogManager.getLogger(SearchCommand.class);
+    private static Logger log = Logger.getLogger(SearchCommand.class);
     public static int SEARCH_LIMIT = 10000;
     private boolean askUser = false;
 

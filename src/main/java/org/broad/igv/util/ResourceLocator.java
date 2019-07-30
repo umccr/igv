@@ -25,11 +25,9 @@
 
 package org.broad.igv.util;
 
-import htsjdk.tribble.Tribble;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 import com.google.gson.JsonObject;
 import htsjdk.tribble.Tribble;
+import org.apache.log4j.Logger;
 import org.broad.igv.google.Ga4ghAPIHelper;
 import org.broad.igv.google.GoogleUtils;
 import org.broad.igv.gs.GSUtils;
@@ -48,7 +46,7 @@ import java.util.Map;
  */
 public class ResourceLocator {
 
-    private static Logger log = LogManager.getLogger(ResourceLocator.class);
+    private static Logger log = Logger.getLogger(ResourceLocator.class);
 
     /**
      * Display name
@@ -341,11 +339,11 @@ public class ResourceLocator {
 
     public void setPath(String path) {
         if (path != null && path.startsWith("file://")) {
-            this.path = path.substring(7);
+            this.path = path.substring("file://".length());
         } else if (path != null && path.startsWith("gs://")) {
             this.path = GoogleUtils.translateGoogleCloudURL(path);
         } else if (path != null && path.startsWith("s3://")) {
-            this.path = AmazonUtils.translateAmazonCloudURL(path);
+            this.path = path;
 
             // Set UI human-readable short name for the file
             String objFname = "";
@@ -360,7 +358,7 @@ public class ResourceLocator {
 
             String s3UrlIndexPath = detectIndexPath(path);
 
-            this.setIndexPath(AmazonUtils.translateAmazonCloudURL(s3UrlIndexPath));
+            this.setIndexPath(s3UrlIndexPath);
 
         } else {
             this.path = path;
@@ -406,7 +404,7 @@ public class ResourceLocator {
         } else if (inputPath.contains(".vcf.gz")) {
             indexPath = inputPath + ".tbi";
         } else {
-            log.debug("S3 object filetype could not be determined from S3 url");
+            log.debug("S3 index object filetype could not be determined from S3 url");
         }
         return indexPath;
     }

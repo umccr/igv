@@ -29,14 +29,13 @@
  */
 package org.broad.igv.tools.parsers;
 
-import htsjdk.tribble.readers.AsciiLineReader;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.broad.igv.Globals;
 import org.broad.igv.feature.genome.Genome;
 import org.broad.igv.track.TrackType;
 import org.broad.igv.util.ParsingUtils;
 import org.broad.igv.util.ResourceLocator;
+import htsjdk.tribble.readers.AsciiLineReader;
 
 import java.io.IOException;
 import java.util.Set;
@@ -46,7 +45,7 @@ import java.util.Set;
  */
 public class CNParser extends AbstractParser {
 
-    static private Logger log = LogManager.getLogger(CNParser.class);
+    static private Logger log = Logger.getLogger(CNParser.class);
 
     private static int PROBE_COL = 0;
     int skipColumns;

@@ -27,9 +27,7 @@ package org.broad.igv.tools.parsers;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import htsjdk.tribble.readers.AsciiLineReader;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.broad.igv.Globals;
 import org.broad.igv.data.WiggleDataset;
 import org.broad.igv.data.WiggleParser;
@@ -38,6 +36,7 @@ import org.broad.igv.track.TrackProperties;
 import org.broad.igv.track.TrackType;
 import org.broad.igv.util.ParsingUtils;
 import org.broad.igv.util.ResourceLocator;
+import htsjdk.tribble.readers.AsciiLineReader;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -53,7 +52,7 @@ import java.util.Map;
  */
 public class ToolsWiggleParser extends WiggleParser{
 
-    static private Logger log = LogManager.getLogger(ToolsWiggleParser.class);
+    static private Logger log = Logger.getLogger(ToolsWiggleParser.class);
     private DataConsumer dataConsumer;
 
     // State variables.  This is a serial type parser,  these variables are used to hold temporary

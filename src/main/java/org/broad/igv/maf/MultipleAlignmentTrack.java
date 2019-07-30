@@ -25,8 +25,7 @@
 
 package org.broad.igv.maf;
 
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.broad.igv.feature.genome.Genome;
 import org.broad.igv.renderer.ContinuousColorScale;
 import org.broad.igv.renderer.GraphicUtils;
@@ -43,8 +42,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
-import java.util.List;
 import java.util.*;
+import java.util.List;
 
 /**
  * @author jrobinso
@@ -52,7 +51,7 @@ import java.util.*;
 public class MultipleAlignmentTrack extends AbstractTrack {
 
     public static final int margin = 5;
-    private static Logger log = LogManager.getLogger(MultipleAlignmentTrack.class);
+    private static Logger log = Logger.getLogger(MultipleAlignmentTrack.class);
     private static int EXPANDED_HEIGHT = 14;
     private static int GAPS_HEIGHT = 25;
 

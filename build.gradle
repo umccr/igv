@@ -21,21 +21,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-// XXX: Include https://broadinstitute.jfrog.io/broadinstitute/webapp/#/artifacts/browse/tree/Properties/libs-snapshot-local/com/github/samtools/htsjdk/2.19.0-48-g45cfc08-SNAPSHOT
-//  for latest jar mangling
-//apply plugin: "com.jfrog.artifactory"
-
 apply plugin: 'java'
 apply plugin: 'application'
 
 import org.apache.tools.ant.filters.ReplaceTokens
+import proguard.gradle.ProGuardTask
 
 mainClassName = 'org.broad.igv.ui.Main'
 ext.moduleName = 'org.igv'
 
-buildDir = 'build'
+// Build sourceset for ProGuard
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        [group: 'net.sf.proguard', name: 'proguard-gradle', version: '6.1.1']
+        classpath 'net.sf.proguard:proguard-gradle:6.1.1'
+    }
+}
 
-wrapper { }
+//buildDir = 'build'
 
 repositories {
     mavenCentral()
@@ -54,7 +60,6 @@ sourceSets {
 }
 
 configurations {
-    jarsForClasspath
     implementation {
         exclude group: 'com.google.code.findbugs', module: 'annotations'
         exclude group: 'com.google.code.findbugs', module: 'jsr305'
@@ -82,29 +87,24 @@ configurations {
         exclude group: 'org.apache.ant', module: 'ant-launcher'
         exclude group: 'org.apache.commons', module: 'commons-math'
 
-        // Batik deps
+        // Batik deps exclusions
         exclude group: 'org.apache.xmlgraphics', module: 'batik-script'
+        exclude group: 'org.apache.xmlgraphics', module: 'batik-bridge'
+        exclude group: 'org.apache.xmlgraphics', module: 'batik-anim'
+        exclude group: 'org.apache.xmlgraphics', module: 'batik-css'
+        exclude group: 'org.apache.xmlgraphics', module: 'batik-gvt'
+
         exclude group: 'xml-apis', module: 'xml-apis'
         exclude group: 'xml-apis', module: 'xml-apis-ext'
         exclude group: 'xalan', module: 'serializer'
         exclude group: 'xalan', module: 'xalan'
 
-        // Amazon deps
+        // Amazon deps exclusions
         exclude group: 'software.amazon', module: 'flow'
         exclude group: 'software.amazon.awssdk', module: 'annotations'
-        //exclude group: 'software.amazon.awssdk', module: 'aws-xml-protocol'
-        //exclude group: 'software.amazon.awssdk', module: 'http-client-spi'
-        //exclude group: 'software.amazon.awssdk', module: 'apache-client'
-        //exclude group: 'software.amazon.awssdk', module: 'utils'
-        //exclude group: 'software.amazon.awssdk', module: 'annotations'
-        //exclude group: 'com.fasterxml.jackson.core', module: 'jackson-core'
-        //exclude group: 'com.fasterxml.jackson.core', module: 'jackson-annotations'
-        //exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
-        //exclude group: 'org.reactivestreams', module: 'reactive-streams'
-        //exclude group: 'com.typesafe.netty', module: 'netty-reactive-streams'
-        //exclude group: 'com.typesafe.netty', module: 'netty-reactive-streams-http'
 
         // Exclude very old htsjdk from Goby while we wait for https://github.com/igvteam/igv/issues/646
+        // ... then we can comment the htsjdk below when a Maven artifact is published
         exclude group: 'com.github.samtools', module: 'htsjdk'
     }
 }
@@ -117,10 +117,14 @@ dependencies {
         [group: 'com.google.protobuf', name: 'protobuf-java', version: '3.7.0-rc1'],
         [group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'],
         [group: 'commons-io', name: 'commons-io', version: '2.6'],
+        [group: 'org.apache.commons', name: 'commons-compress', version: '1.18'],
+        [group: 'org.xerial.snappy', name: 'snappy-java', version: '1.1.7.3'],
+        [group: 'org.apache.commons', name: 'commons-jexl', version: '2.1.1'],
         //[group: 'com.github.samtools', name: 'htsjdk', version: '2.19.0'],
         // holding upstream htsjdk back from Maven for this @igvteam jar hack: https://github.com/igvteam/igv/issues/646
-        [group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.11.2'],
-        [group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.11.2'],
+        [group: 'org.apache.logging.log4j', name: 'log4j-1.2-api', version: '2.11.0'],
+        [group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.11.0'],
+        [group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.11.0'],
         [group: 'org.swinglabs', name: 'swing-layout', version: '1.0.3'],
         [group: 'org.bidib.com.jidesoft', name: 'jide-common', version: '3.7.3'],
         [group: 'com.google.guava', name: 'guava', version: '27.0.1-jre'],
@@ -131,12 +135,13 @@ dependencies {
         [group: 'org.apache.xmlgraphics', name: 'batik-svggen', version: '1.11'],
         [group: 'org.apache.xmlgraphics', name: 'batik-codec', version: '1.11'],
         [group: 'org.slf4j', name: 'slf4j-api', version: '1.7.26'],
+        [group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.26'],
         [group: 'org.netbeans.external', name: 'AbsoluteLayout', version: 'RELEASE110'],
 
         // Amazon deps
-        //[group: 'software.amazon.awssdk', name: 'http-client-spi', version: '2.7.2'],
-        [group: 'software.amazon.awssdk', name: 'cognitoidentity', version: '2.5.0'],
-        [group: 'software.amazon.awssdk', name: 's3', version: '2.5.0']
+        [group: 'software.amazon.awssdk', name: 'http-client-spi', version: '2.7.8'],
+        [group: 'software.amazon.awssdk', name: 'cognitoidentity', version: '2.7.8'],
+        [group: 'software.amazon.awssdk', name: 's3', version: '2.7.8']
     )
 
     testImplementation(
@@ -148,9 +153,9 @@ dependencies {
 
 processResources {
     // Set the current timestamp for release builds; pass in a blank property to enable (i.e. -Ptimestamp="" at CLI)
-    if (timestamp.equals("")) { timestamp = new Date().format("MM/dd/yyyy hh:mm aa") }
+    if (timestamp == "") { timestamp = new Date().format("MM/dd/yyyy hh:mm aa") }
 
-    filesMatching('.properties') {
+    filesMatching('resources/about.properties') {
         filter (ReplaceTokens,
                 tokens: [ VERSION: version, BUILD: buildNumber, DEFAULT_MASTER_RESOURCE_URL: dataServerUrl,
                           TIMESTAMP: timestamp, DEVELOPMENT: development ])
@@ -158,7 +163,7 @@ processResources {
 }
 
 jar {
-    archiveName = 'igv.jar'
+    archiveFileName = 'igv.jar'
     manifest {
         attributes(
             "Permissions": "all-permissions",
@@ -185,7 +190,7 @@ tasks.withType(Test) {
     systemProperties['make.fail'] = 'false'
     systemProperties['include.longrunning'] = 'false'
     systemProperties['ignore.ioexceptions'] = 'false'
-    maxHeapSize = '2000m'
+    maxHeapSize = '2g'
     maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
     
     
@@ -223,22 +228,11 @@ test {
     }
 }
 
-// XXX: Perhaps not the standard Gradle way to ship this?
-task copyToLib(type: Copy, dependsOn: jar) {
-    from configurations.default
-    into "${buildDir}/deplibs"
-}
-
-task createDist(type: Copy, dependsOn: copyToLib)  {
+task createDist(type: Copy, dependsOn: jar)  {
     from ("web/IGV_64.png")
-    from ('scripts/java11') {
+    from ("scripts/java11") {
         include '*.bat'
         include '*.sh'
-
-//task createDist(type: Copy, dependsOn: fullJar)  {
-//    from ("scripts") {
-//        include 'igv.bat'
-//        include 'igv_32.bat'
         include 'igv.command'
         include 'igv.args'
         include 'readme.txt'
@@ -249,102 +243,106 @@ task createDist(type: Copy, dependsOn: copyToLib)  {
         from ("lib") { include '*.jar' }
         into "lib"
     }
-    // XXX: Perhaps not the best way to ship deplibs either
     with copySpec {
-        from ("${buildDir}/deplibs")
+        from ("${buildDir}/libs")
         from ("lib") { include '*.jar' }
         into "lib"
     }
-
+    // Copies all Maven-fetched dependency jars
+    with copySpec {
+        from configurations.default
+        into "lib"
+    }
     with copySpec { from ("genomes/sizes") { } into "lib/genomes" }
 
     into "${buildDir}/IGV-dist"
 }
 
+task createDistZip(type: Zip, dependsOn: createDist) {
+    from("${buildDir}/IGV-dist")
+}
+
 task createLinuxDistZip(type: Zip, dependsOn: createDist) {
-    baseName = "UMCCR_AWS_IGV_Linux"
-    archiveName = createLinuxDistZip.baseName + ".zip"
-    destinationDir = file("${buildDir}/distZip")
-    if (!jdkBundleLinux.equals("")) {
+    archiveAppendix = "Linux"
+    if (!jdkBundleLinux == "") {
         with copySpec { from jdkBundleLinux into "jdk-11" }
     }
     from ("${buildDir}/IGV-dist") {
         exclude "*.bat"
         exclude "*.command"
     }
-    into createLinuxDistZip.baseName
+}
 
-    doLast {
-        project.exec { commandLine('chmod', '775', createLinuxDistZip.archivePath) }
+task createMacDistZip(type: Zip, dependsOn: createDist) {
+    archiveAppendix = "Mac"
+
+    from ("${buildDir}/IGV-dist") {
+        exclude "*.bat"
+        exclude "*_hidpi*"
+        exclude "igvtools*"
+        exclude 'lib/genomes'
     }
 }
 
 task createMacAppDist(type: Copy, dependsOn: createDist) {
-    if (!jdkBundleMac.equals("")) {
-        with copySpec { from jdkBundleMac into "UMCCR_AWS_IGV_MacOS.app/Contents/jdk-11" }
+    if (!jdkBundleMac == "") {
+        with copySpec { from jdkBundleMac into "IGV_${version}.app/Contents/jdk-11" }
     }
     with copySpec {
         from ("scripts/mac.app") {
             exclude "Contents/Info.plist.template"
             exclude "Contents/MacOS/JavaAppLauncher"
         }
-        into "UMCCR_AWS_IGV_MacOS.app"
+        into "IGV_${version}.app"
     }
     with copySpec {
         from ("scripts/java11/Info.plist.template")
         filter (ReplaceTokens, tokens: [ VERSION: version ])
         rename "Info.plist.template", "Info.plist"
-        into "UMCCR_AWS_IGV_MacOS.app/Contents"
+        into "IGV_${version}.app/Contents"
     }
     with copySpec {
         from ("scripts/java11/IGV_mac.app.command")
         rename "IGV_mac.app.command", "IGV"
-        into "UMCCR_AWS_IGV_MacOS.app/Contents/MacOS"
+        into "IGV_${version}.app/Contents/MacOS"
     }
     with copySpec {
         from ("web/IGV_64.png")
-        into "UMCCR_AWS_IGV_MacOS.app/Contents/Resources"
+        into "IGV_${version}.app/Contents/Resources"
     }
     with copySpec {
         from ("${buildDir}/IGV-dist/") include 'igv.args'
-        into "UMCCR_AWS_IGV_MacOS.app/Contents/Java/"
+        into "IGV_${version}.app/Contents/Java/"
     }
     with copySpec {
         from ("${buildDir}/IGV-dist/lib") include '*.jar'
-        into "UMCCR_AWS_IGV_MacOS.app/Contents/Java/lib"
+        into "IGV_${version}.app/Contents/Java/lib"
     }
     into "${buildDir}/IGV-MacApp-dist"
-
-    doLast {
-        project.exec { commandLine('chmod', '775', "${buildDir}/IGV-MacApp-dist/UMCCR_AWS_IGV_MacOS.app" ) }
-    }
 }
 
 task createMacAppDistZip(type: Zip, dependsOn: createMacAppDist) {
-    archiveName = "UMCCR_AWS_IGV_MacOS.app.zip"
-    destinationDir = file("${buildDir}/distZip")
-    from "${buildDir}/IGV-MacApp-dist"
-
-    doLast {
-        project.exec { commandLine('chmod', '775', createMacAppDistZip.archivePath ) }
-    }
+    archiveAppendix = "Mac"
+    from("${buildDir}/IGV-MacApp-dist")
 }
 
 task createWinDist(type: Copy, dependsOn: createDist) {
-    if (!jdkBundleWindows.equals("")) {
+    if (!jdkBundleWindows == "") {
         with copySpec { from jdkBundleWindows into "IGV_${version}/jdk-11" }
     }
     with copySpec {
         from("${buildDir}/IGV-dist") {
             exclude "*.sh"
             exclude "*.command"
-            exclude "igvtools"
+            exclude "igvtools*"
             exclude "igvtools_gui"
             exclude "igvtools_gui_hidpi"
+            exclude 'lib/genomes'
         }
         from ("resources") { include "IGV_64.ico" }
         into "IGV_${version}"
     }
+
     with copySpec {
         // Create a build-specific NSIS installer script.
         from ("scripts/nsis/installer.nsi")
@@ -354,11 +352,16 @@ task createWinDist(type: Copy, dependsOn: createDist) {
     into "${buildDir}/IGV-WinExe-dist"
 }
 
+task createWinDistZip(type: Zip, dependsOn: createWinDist) {
+    archiveAppendix = "Win"
+    from("${buildDir}/IGV-WinExe-dist")
+}
+
 task createWinExeDist(type: Exec, dependsOn: createWinDist) {
     commandLine(makensisCommand, "-O${buildDir}/tmp/nsis-build.log",
                 "${buildDir}/IGV-WinExe-dist/installer.nsi")
     doLast {
-        if (makensisCommand.equals("")) {
+        if (makensisCommand == "") {
             throw new GradleException("Required property not set: makensisCommand");
         }
     }
@@ -368,16 +371,50 @@ task signWinExeDist(type: Exec, dependsOn: createWinExeDist) {
     standardInput = new ByteArrayInputStream( keyPassword.getBytes() );
     commandLine(signcodeCommand, "-spc", spcFile, "-v", pvkFile, "-a", "sha1",
                 "-\$", "commercial", "-n", "IGV ${version}", "-i", "http://www.igv.org/",
-                "-t", tsaurl, "-tr", "10", "${buildDir}/IGV-WinExe-dist/IGV_${version}-installer.exe")
+                "-t", tsaurl, "-tr", "10", "${buildDir}/IGV-WinExe-dist/IGV_Win_${version}-installer.exe")
     doLast {
-        if (signcodeCommand.equals("")) {
+        if (signcodeCommand == "") {
             throw new GradleException("Required property not set: signcodeCommand");
         }
     }
 }
 
-build.dependsOn createLinuxDistZip,createMacAppDistZip
+task fullJar(type: Jar, dependsOn: jar) {
+    // Based on https://discuss.gradle.org/t/removing-dependencies-from-a-jar-file-during-jar-task/5521/3
+    from {
+        ((configurations.compile - configurations.default) + "${buildDir}/libs/igv.jar").collect {
+            zipTree(it)
+        }
+    } {
+        exclude "META-INF/**"
+    }
 
-if (!makensisCommand.equals("") && !signcodeCommand.equals("")) {
-    build.dependsOn signWinExeDist
+    manifest {
+        attributes(
+                "Permissions": "all-permissions",
+                "Application-Name": "IGV",
+                "Built-By": System.getProperty('user.name'),
+                "Main-Class": mainClassName,
+                "Class-Path": configurations.default.collect { it.getName() }.join(' ')
+        )
+    }
 }
+
+//build.dependsOn createDistZip,createLinuxDistZip,createMacDistZip,createMacAppDistZip
+
+if (!makensisCommand == "" && !signcodeCommand == "") {
+    dependsOn signWinExeDist
+}
+
+// XXX: META-INF versions support (Java11) seem to clash with proguard at this point in time:
+// https://sourceforge.net/p/proguard/bugs/665/
+// https://sourceforge.net/p/proguard/discussion/182456/thread/8c56b22dc2/?limit=25
+//task myproguard(type: ProGuardTask) {
+////    configuration 'proguard.txt'
+//
+//    injars "${buildDir}/IGV-dist/lib"
+//    outjars "${buildDir}/libs/igv-proguard.jar"
+//
+//    //libraryjars "${buildDir}/IGV-dist/lib", jarfilter:"lib/**.jar(!META-INF/**)"
+//    //libraryjars "${System.getProperty('java.home')}/lib/rt.jar"
+//}

@@ -31,8 +31,7 @@ package org.broad.igv.track;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.broad.igv.prefs.Constants;
 import org.broad.igv.prefs.PreferencesManager;
 import org.broad.igv.renderer.GraphicUtils;
@@ -40,8 +39,8 @@ import org.broad.igv.ui.FontManager;
 import org.broad.igv.ui.IGV;
 
 import java.awt.*;
-import java.util.List;
 import java.util.*;
+import java.util.List;
 
 /**
  * Container for a group of tracks.  Behaves as a single unit when sorting
@@ -51,7 +50,7 @@ import java.util.*;
  */
 public class TrackGroup {
 
-    private static Logger log = LogManager.getLogger(TrackGroup.class);
+    private static Logger log = Logger.getLogger(TrackGroup.class);
 
     /**
      * Key used to group tracks (e.g. SAMPLE_ID).
