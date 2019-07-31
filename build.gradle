@@ -41,8 +41,6 @@ buildscript {
     }
 }
 
-//buildDir = 'build'
-
 repositories {
     mavenCentral()
 }
@@ -379,34 +377,9 @@ task signWinExeDist(type: Exec, dependsOn: createWinExeDist) {
     }
 }
 
-task fullJar(type: Jar, dependsOn: jar) {
-    // Based on https://discuss.gradle.org/t/removing-dependencies-from-a-jar-file-during-jar-task/5521/3
-    from {
-        ((configurations.compile - configurations.default) + "${buildDir}/libs/igv.jar").collect {
-            zipTree(it)
-        }
-    } {
-        exclude "META-INF/**"
-    }
+tasks.build.dependsOn { [createDistZip, createLinuxDistZip, createMacAppDistZip, createWinDistZip] }
 
-    manifest {
-        attributes(
-                "Permissions": "all-permissions",
-                "Application-Name": "IGV",
-                "Built-By": System.getProperty('user.name'),
-                "Main-Class": mainClassName,
-                "Class-Path": configurations.default.collect { it.getName() }.join(' ')
-        )
-    }
-}
-
-//build.dependsOn createDistZip,createLinuxDistZip,createMacDistZip,createMacAppDistZip
-
-if (!makensisCommand == "" && !signcodeCommand == "") {
-    dependsOn signWinExeDist
-}
-
-// XXX: META-INF versions support (Java11) seem to clash with proguard at this point in time:
+// XXX: META-INF versions support seem to clash with proguard at this point in time:
 // https://sourceforge.net/p/proguard/bugs/665/
 // https://sourceforge.net/p/proguard/discussion/182456/thread/8c56b22dc2/?limit=25
 //task myproguard(type: ProGuardTask) {
