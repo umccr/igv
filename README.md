@@ -35,8 +35,14 @@ Make sure you drop this file under `~/igv/oauth-config.json`, otherwise the fede
 }
 ```
 
-NOTE: At the time of writing this, the JSON file above is incompatible with upstream IGV (it will not start at all).
-NOTE: This requirement will be removed, hopefully soon, by re-using [PROPERTIES_URL](https://github.com/igvteam/igv/blob/0f595577bf2ff7101f8b7c2df1487a5765263f79/src/main/java/org/broad/igv/google/OAuthUtils.java#L110) endpoint fetching mechanism.
+NOTE1: At the time of writing this, the JSON file above is incompatible with upstream IGV (it will not start at all).
+
+NOTE2: This requirement will be removed, hopefully soon, by re-using [PROPERTIES_URL](https://github.com/igvteam/igv/blob/0f595577bf2ff7101f8b7c2df1487a5765263f79/src/main/java/org/broad/igv/google/OAuthUtils.java#L110) endpoint fetching mechanism.
+
+NOTE3: For windows users:
+
+1) Make sure you download the Java SDK pointed to above and install it [with the `.msi` installer](https://d3pxv6yz143wms.cloudfront.net/11.0.4.11.1/amazon-corretto-11.0.4.11.1-windows-x64.msi).
+2) Make sure the `oauth-config.json` file above is NOT `oauth-config.json.txt`.
 
 ### Download
 
