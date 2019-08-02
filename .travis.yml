@@ -7,7 +7,7 @@ jdk: openjdk11
 install:
 - ./gradlew assemble
 script:
-  - ./gradlew check --debug
+  - ./gradlew check
   - ./gradlew createMacAppDistZip
   - ./gradlew createLinuxDistZip
   - ./gradlew createWinDistZip

@@ -44,6 +44,7 @@ import org.broad.igv.feature.GisticFileParser;
 import org.broad.igv.feature.MutationTrackLoader;
 import org.broad.igv.feature.ShapeFileUtils;
 import org.broad.igv.feature.basepair.BasePairTrack;
+import org.broad.igv.bedpe.BedPEFeature;
 import org.broad.igv.bedpe.BedPEParser;
 import org.broad.igv.bedpe.InteractionTrack;
 import org.broad.igv.feature.bionano.SMAPParser;
@@ -120,12 +121,12 @@ public class TrackLoader {
         if (GoogleUtils.isGoogleDrive(path) || GoogleUtils.isGoogleCloud(path)) {
             GoogleUtils.checkLogin();
         }
-//        // Check if the AWS credentials are still valid. If not, re-login and renew pre-signed urls
+        // Check if the AWS credentials are still valid. If not, re-login and renew pre-signed urls
         if (AmazonUtils.isAwsS3Path(path)) {
             AmazonUtils.checkLogin();
         }
 
-        log.debug("Loading resource, path " + path);
+        log.info("Loading resource, path " + path);
         try {
             String typeString = locator.getTypeString();
 
@@ -232,6 +233,7 @@ public class TrackLoader {
                     tp = new TrackProperties();
                     ParsingUtils.parseTrackLine(trackLine, tp);
                 }
+
                 for (Track track : newTracks) {
                     if (locator.getFeatureInfoURL() != null) {
                         track.setUrl(locator.getFeatureInfoURL());
