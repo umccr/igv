@@ -569,16 +569,16 @@ public class AlignmentDataManager implements IGVEventObserver {
     }
 
     private AlignmentTileLoader checkReader() {
-        try {
-            String aPath = locator.getPath();
-            if (AmazonUtils.isAwsS3Path(aPath) && !AmazonUtils.isS3PresignedValid(aPath)) {
-                reader = new AlignmentTileLoader(AlignmentReaderFactory.getReader(locator));
-            }
-        } catch(MalformedURLException e){
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            String aPath = locator.getPath();
+//            if (AmazonUtils.isAwsS3Path(aPath) && !AmazonUtils.isS3PresignedValid(aPath)) {
+//                reader = new AlignmentTileLoader(AlignmentReaderFactory.getReader(locator));
+//            }
+//        } catch(MalformedURLException e){
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
         return reader;
     }

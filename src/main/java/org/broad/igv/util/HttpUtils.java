@@ -139,14 +139,7 @@ public class HttpUtils {
 
         if (urlString.startsWith("gs://")) {
             urlString = GoogleUtils.translateGoogleCloudURL(urlString);
-        } else if (AmazonUtils.isAwsS3Path(urlString)) {
-            try {
-                urlString = AmazonUtils.translateAmazonCloudURL(urlString);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
-
         if (GoogleUtils.isGoogleCloud(urlString)) {
             if (urlString.indexOf("alt=media") < 0) {
                 urlString = urlString + (urlString.indexOf('?') > 0 ? "&" : "?") + "alt=media";
@@ -325,6 +318,16 @@ public class HttpUtils {
     }
 
     public boolean resourceAvailable(String urlString) {
+
+        if (AmazonUtils.isAwsS3Path(urlString)) {
+            try {
+                urlString = AmazonUtils.translateAmazonCloudURL(urlString);
+            } catch (IOException e) {
+                MessageUtils.showErrorMessage("Error translating S3 url", e);
+                log.error("Error translating S3 url", e);
+                return false;
+            }
+        }
 
         URL url = null;
         try {
@@ -720,6 +723,16 @@ public class HttpUtils {
     private HttpURLConnection openConnection(
 
             URL url, Map<String, String> requestProperties, String method, int redirectCount) throws IOException {
+
+        String urlString = url.toString();
+         if (AmazonUtils.isAwsS3Path(urlString)) {
+            try {
+                url = new URL(AmazonUtils.translateAmazonCloudURL(urlString));
+            } catch (IOException e) {
+                MessageUtils.showErrorMessage("Error translating S3 url", e);
+                log.error("Error translating S3 url", e);
+            }
+        }
 
         // if the url points to a openid location instead of a oauth2.0 location, used the fina and replace
         // string to dynamically map url - dwm08

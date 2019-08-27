@@ -162,38 +162,38 @@ abstract public class TribbleFeatureSource implements org.broad.igv.track.Featur
     }
 
     IGVFeatureReader checkReader() {
-        try {
-            String aPath = locator.getPath();
-            if (AmazonUtils.isAwsS3Path(aPath) && !AmazonUtils.isS3PresignedValid(aPath)) {
-                if( this.reader instanceof CachingFeatureReader ) {
-                    String path = locator.getPath();
-                    if (FileUtils.isRemote(path)) {
-                        path = HttpUtils.mapURL(path);
-                    }
-                    String idxPath = locator.getIndexPath();
-                    if (idxPath != null) {
-                        if (FileUtils.isRemote(idxPath)) {
-                            idxPath = HttpUtils.mapURL(idxPath);
-                        }
-                    } else {
-                        idxPath = ResourceLocator.indexFile(locator);
-                        if (idxPath == null) {
-                        } else {
-                            if (FileUtils.isRemote(idxPath)) {
-                                idxPath = HttpUtils.mapURL(idxPath);
-                            }
-                        }
-                    }
-
-                    abstractReader = AbstractFeatureReader.getFeatureReader(path, idxPath, CodecFactory.getCodec(locator, genome), useIndex);
-                    this.reader = new CachingFeatureReader(abstractReader, 5, featureWindowSize);
-                } else {
-                    this.reader = new TribbleReaderWrapper(abstractReader);
-                }
-            }
-        } catch(MalformedURLException e){
-            e.printStackTrace();
-        }
+//        try {
+//            String aPath = locator.getPath();
+//            if (AmazonUtils.isAwsS3Path(aPath) && !AmazonUtils.isS3PresignedValid(aPath)) {
+//                if( this.reader instanceof CachingFeatureReader ) {
+//                    String path = locator.getPath();
+//                    if (FileUtils.isRemote(path)) {
+//                        path = HttpUtils.mapURL(path);
+//                    }
+//                    String idxPath = locator.getIndexPath();
+//                    if (idxPath != null) {
+//                        if (FileUtils.isRemote(idxPath)) {
+//                            idxPath = HttpUtils.mapURL(idxPath);
+//                        }
+//                    } else {
+//                        idxPath = ResourceLocator.indexFile(locator);
+//                        if (idxPath == null) {
+//                        } else {
+//                            if (FileUtils.isRemote(idxPath)) {
+//                                idxPath = HttpUtils.mapURL(idxPath);
+//                            }
+//                        }
+//                    }
+//
+//                    abstractReader = AbstractFeatureReader.getFeatureReader(path, idxPath, CodecFactory.getCodec(locator, genome), useIndex);
+//                    this.reader = new CachingFeatureReader(abstractReader, 5, featureWindowSize);
+//                } else {
+//                    this.reader = new TribbleReaderWrapper(abstractReader);
+//                }
+//            }
+//        } catch(MalformedURLException e){
+//            e.printStackTrace();
+//        }
 
         return reader;
     }
