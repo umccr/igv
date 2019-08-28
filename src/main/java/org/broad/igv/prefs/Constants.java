@@ -221,6 +221,7 @@ final public class Constants {
     public static final String GOOGLE_API_KEY = "GOOGLE_API_KEY";
     public static final String GOOGLE_PROJECT = "GOOGLE_PROJECT";
     public static final String ENABLE_GOOGLE_MENU = "ENABLE_GOOGLE_MENU";
+    public static final String ENABLE_AMAZON_MENU = "ENABLE_AMAZON_MENU";
     public static final String SAVE_GOOGLE_CREDENTIALS = "SAVE_GOOGLE_CREDENTIALS";
 
     // CBIO connections

@@ -191,7 +191,7 @@ public class IGVMenuBar extends JMenuBar implements IGVEventObserver {
 
         try {
             AWSMenu = createAWSMenu();
-            AWSMenu.setVisible(true);
+            AWSMenu.setVisible(PreferencesManager.getPreferences().getAsBoolean(ENABLE_AMAZON_MENU));
             menus.add(AWSMenu);
         } catch (IOException e) {
             log.error("Error creating the Amazon AWS menu: " + e.getMessage());
@@ -1192,6 +1192,10 @@ public class IGVMenuBar extends JMenuBar implements IGVEventObserver {
 
     public void enableGoogleMenu(boolean aBoolean) {
         googleMenu.setVisible(aBoolean);
+    }
+
+    public void enableAmazonMenu(boolean aBoolean) {
+        AWSMenu.setVisible(aBoolean);
     }
 
     @Override

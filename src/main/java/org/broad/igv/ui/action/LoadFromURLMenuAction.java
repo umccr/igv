@@ -40,6 +40,7 @@ import org.broad.igv.ui.IGV;
 import org.broad.igv.ui.IGVMenuBar;
 import org.broad.igv.ui.util.LoadFromURLDialog;
 import org.broad.igv.ui.util.MessageUtils;
+import org.broad.igv.util.AmazonUtils;
 import org.broad.igv.util.HttpUtils;
 import org.broad.igv.util.ResourceLocator;
 
@@ -136,20 +137,27 @@ public class LoadFromURLMenuAction extends MenuAction {
     }
 
     private String mapURL(String url) {
-
         url = url.trim();
 
-        if (GoogleUtils.isGoogleCloud(url) || GoogleUtils.isGoogleDrive(url)) {
+        // Assume url is local by default
+        boolean cloud = false;
 
+        if (GoogleUtils.isGoogleCloud(url) || GoogleUtils.isGoogleDrive(url)) {
+            cloud = true;
             enableGoogleMenu();
-            // if user is not currently logged in, attempt to
-            // log in user
+        } else if(AmazonUtils.isAwsS3Path(url)) {
+            cloud = true;
+            enableAmazonMenu();
+        }
+
+        // if user is not currently logged in, attempt to
+        // log in user
+        if (cloud) {
             try {
                 OAuthUtils.getInstance().doSecureLogin();
             } catch (IOException e) {
                 log.error("Error connecting to OAuth: " + e.getMessage());
             }
-
         }
 
         return url;
@@ -163,6 +171,13 @@ public class LoadFromURLMenuAction extends MenuAction {
         }
     }
 
+    private void enableAmazonMenu() {
+
+        if (!PreferencesManager.getPreferences().getAsBoolean(Constants.ENABLE_AMAZON_MENU)) {
+            PreferencesManager.getPreferences().put(Constants.ENABLE_AMAZON_MENU, true);
+            IGVMenuBar.getInstance().enableAmazonMenu(true);
+        }
+    }
 
     private boolean ping(String url) {
         InputStream is = null;

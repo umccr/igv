@@ -644,6 +644,20 @@ public class PreferencesEditor extends javax.swing.JDialog {
                                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                     new Insets(0, 0, 15, 5), 0, 0));
 
+                                //---- enableAmazonCB ----
+                                enableGoogleCB.setText("Enable Amazon access");
+                                enableGoogleCB.addActionListener(e -> enableAmazonCBActionPerformed(e));
+                                jPanel10.add(enableAmazonCB, new GridBagConstraints(0, 7, 1, 1, 0.0, 0.0,
+                                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                        new Insets(0, 0, 15, 5), 0, 0));
+
+                                //---- label331 ----
+                                label331.setText("Enable loading from Amazon S3 and AWS related APIs.");
+                                label331.setFont(new Font("Lucida Grande", Font.ITALIC, 13));
+                                jPanel10.add(label331, new GridBagConstraints(3, 7, 5, 1, 0.0, 0.0,
+                                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                        new Insets(0, 0, 15, 5), 0, 0));
+
                                 //---- label33 ----
                                 label33.setText("Enable loading from Google apis.");
                                 label33.setFont(new Font("Lucida Grande", Font.ITALIC, 13));
@@ -3758,6 +3772,10 @@ public class PreferencesEditor extends javax.swing.JDialog {
         updatedPreferenceMap.put(ENABLE_GOOGLE_MENU, String.valueOf(enableGoogleCB.isSelected()));
     }
 
+    private void enableAmazonCBActionPerformed(ActionEvent e) {
+        updatedPreferenceMap.put(ENABLE_AMAZON_MENU, String.valueOf(enableAmazonCB.isSelected()));
+    }
+
     private void saveGoogleCredentialsCBActionPerformed(ActionEvent e) {
         updatedPreferenceMap.put(SAVE_GOOGLE_CREDENTIALS, String.valueOf(saveGoogleCredentialsCB.isSelected()));
     }
@@ -3829,6 +3847,8 @@ public class PreferencesEditor extends javax.swing.JDialog {
         scaleFontsCB.setSelected(prefMgr.getAsBoolean(SCALE_FONTS));
 
         enableGoogleCB.setSelected(prefMgr.getAsBoolean(ENABLE_GOOGLE_MENU));
+        enableAmazonCB.setSelected(prefMgr.getAsBoolean(ENABLE_AMAZON_MENU));
+
         saveGoogleCredentialsCB.setSelected(prefMgr.getAsBoolean(SAVE_GOOGLE_CREDENTIALS));
 
         sessionPathsCB.setSelected(prefMgr.getAsBoolean(SESSION_RELATIVE_PATH));
@@ -4144,7 +4164,9 @@ public class PreferencesEditor extends javax.swing.JDialog {
     private JLabel label7;
     private JPanel backgroundColorPanel;
     private JCheckBox enableGoogleCB;
+    private JCheckBox enableAmazonCB;
     private JLabel label33;
+    private JLabel label331;
     private JCheckBox saveGoogleCredentialsCB;
     private JLabel label34;
     private JLabel textField1;
