@@ -32,8 +32,10 @@ module org.igv {
 
     // AWS
     requires software.amazon.awssdk.core;
+    requires software.amazon.awssdk.awscore;
     requires software.amazon.awssdk.regions;
     requires software.amazon.awssdk.services.s3;
+    requires software.amazon.awssdk.services.sts;
     requires software.amazon.awssdk.auth;
     requires software.amazon.awssdk.services.cognitoidentity;
     requires software.amazon.awssdk.http;

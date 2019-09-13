@@ -10,15 +10,21 @@ import org.broad.igv.aws.IGVS3Object;
 import org.broad.igv.google.OAuthUtils;
 import org.broad.igv.ui.util.MessageUtils;
 import software.amazon.awssdk.auth.credentials.*;
+import software.amazon.awssdk.awscore.AwsRequestOverrideConfiguration;
 import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.core.exception.SdkServiceException;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.cognitoidentity.CognitoIdentityClient;
 import software.amazon.awssdk.services.cognitoidentity.CognitoIdentityClientBuilder;
 import software.amazon.awssdk.services.cognitoidentity.model.*;
+import software.amazon.awssdk.services.sts.auth.StsAssumeRoleWithWebIdentityCredentialsProvider;
+import software.amazon.awssdk.services.sts.model.AssumeRoleWithWebIdentityRequest;
+import software.amazon.awssdk.services.sts.StsClient;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 import software.amazon.awssdk.services.s3.paginators.ListObjectsV2Iterable;
+import software.amazon.awssdk.services.sts.model.AssumeRoleWithWebIdentityResponse;
+import software.amazon.awssdk.services.sts.model.Credentials;
 import software.amazon.awssdk.utils.http.SdkHttpUtils;
 
 import java.io.IOException;
@@ -117,18 +123,53 @@ public class AmazonUtils {
         cognitoIdentityClient = cognitoIdentityBuilder.build();
 
 
-        // "To provide end-user credentials, first make an unsigned call to GetId."
+        // https://docs.aws.amazon.com/cognito/latest/developerguide/authentication-flow.html
+        // Basic (Classic) Authflow
+        // Uses AssumeRoleWithWebIdentity and facilitates CloudTrail logging. Uses one more request but provides user traceability.
         GetIdRequest.Builder idrequest = GetIdRequest.builder().identityPoolId(federatedPoolId)
                                                                .logins(logins);
         GetIdResponse idResult = cognitoIdentityClient.getId(idrequest.build());
 
-        // "Next, make an unsigned call to GetCredentialsForIdentity."
+        GetOpenIdTokenRequest.Builder openidrequest = GetOpenIdTokenRequest.builder().logins(logins).identityId(idResult.identityId());
+        GetOpenIdTokenResponse openId = cognitoIdentityClient.getOpenIdToken(openidrequest.build());
+
+        // XXX: Hack: use part of the Enhanced (simplifed) authflow just to get access to idPoolRoleArn :-!!!
         GetCredentialsForIdentityRequest.Builder authedIds = GetCredentialsForIdentityRequest.builder();
         authedIds.identityId(idResult.identityId()).logins(logins);
-
         GetCredentialsForIdentityResponse authedRes = cognitoIdentityClient.getCredentialsForIdentity(authedIds.build());
 
-        return authedRes.credentials();
+        StaticCredentialsProvider tempStaticCredsProviderForIdPoolRoleArnGetting = StaticCredentialsProvider.create(AwsBasicCredentials.create(authedRes.credentials().accessKeyId(), authedRes.credentials().secretKey()));
+        AwsRequestOverrideConfiguration tempCreds = AwsRequestOverrideConfiguration.builder().credentialsProvider(tempStaticCredsProviderForIdPoolRoleArnGetting).build();
+
+        GetIdentityPoolRolesRequest req = GetIdentityPoolRolesRequest.builder().identityPoolId(federatedPoolId).overrideConfiguration(tempCreds).build();
+
+        // XXX: Missing Authentication Token (Service: CognitoIdentity, Status Code: 400
+        String idPoolRoleArn = cognitoIdentityClient.getIdentityPoolRoles(req).roles().get("authenticated");
+
+        log.info("OpenID token contents are: \n"+openId.token());
+        AssumeRoleWithWebIdentityRequest.Builder webidrequest = AssumeRoleWithWebIdentityRequest.builder().webIdentityToken(openId.token())
+                                                                                                          .roleSessionName(openId.token())
+                                                                                                          .roleArn(idPoolRoleArn);
+
+        AssumeRoleWithWebIdentityResponse stsClientResponse = StsClient.builder().build().assumeRoleWithWebIdentity(webidrequest.build());
+        //StsAssumeRoleWithWebIdentityCredentialsProvider awsWebIdProvider = StsAssumeRoleWithWebIdentityCredentialsProvider.builder().refreshRequest(webidrequest.build()).build();
+
+//      // Enhanced (Simplified) Authflow
+//      // Major drawback: Does not store federated user information on CloudTrail only authenticated role name appears in logs.
+//
+//        // "To provide end-user credentials, first make an unsigned call to GetId."
+//        GetIdRequest.Builder idrequest = GetIdRequest.builder().identityPoolId(federatedPoolId)
+//                                                               .logins(logins);
+//        GetIdResponse idResult = cognitoIdentityClient.getId(idrequest.build());
+//
+//        // "Next, make an unsigned call to GetCredentialsForIdentity."
+//        GetCredentialsForIdentityRequest.Builder authedIds = GetCredentialsForIdentityRequest.builder();
+//        authedIds.identityId(idResult.identityId()).logins(logins);
+//
+//        GetCredentialsForIdentityResponse authedRes = cognitoIdentityClient.getCredentialsForIdentity(authedIds.build());
+//return authedRes.credentials()
+
+        return stsClientResponse.credentials();
     }
 
 
@@ -140,7 +181,7 @@ public class AmazonUtils {
      */
     public static void updateS3Client(Credentials credentials) {
         AwsSessionCredentials creds = AwsSessionCredentials.create(credentials.accessKeyId(),
-                                                                   credentials.secretKey(),
+                                                                   credentials.secretAccessKey(),
                                                                    credentials.sessionToken());
 
         StaticCredentialsProvider s3CredsProvider = StaticCredentialsProvider.create(creds);
@@ -280,7 +321,7 @@ public class AmazonUtils {
 
         Credentials credentials = GetCognitoAWSCredentials();
         AwsSessionCredentials creds = AwsSessionCredentials.create(credentials.accessKeyId(),
-                credentials.secretKey(),
+                credentials.secretAccessKey(),
                 credentials.sessionToken());
         StaticCredentialsProvider awsCredsProvider = StaticCredentialsProvider.create(creds);
 
