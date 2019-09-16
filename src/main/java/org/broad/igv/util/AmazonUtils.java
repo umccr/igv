@@ -10,7 +10,6 @@ import org.broad.igv.aws.IGVS3Object;
 import org.broad.igv.google.OAuthUtils;
 import org.broad.igv.ui.util.MessageUtils;
 import software.amazon.awssdk.auth.credentials.*;
-import software.amazon.awssdk.awscore.AwsRequestOverrideConfiguration;
 import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.core.exception.SdkServiceException;
 import software.amazon.awssdk.regions.Region;

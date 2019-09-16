@@ -31,16 +31,16 @@ import org.apache.tools.ant.filters.ReplaceTokens
 mainClassName = 'org.broad.igv.ui.Main'
 ext.moduleName = 'org.igv'
 
-// Build sourceset for ProGuard
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        [group: 'net.sf.proguard', name: 'proguard-gradle', version: '6.1.1']
-        classpath 'net.sf.proguard:proguard-gradle:6.1.1'
-    }
-}
+//// Build sourceset for ProGuard
+//buildscript {
+//    repositories {
+//        mavenCentral()
+//    }
+//    dependencies {
+//        [group: 'net.sf.proguard', name: 'proguard-gradle', version: '6.1.1']
+//        classpath 'net.sf.proguard:proguard-gradle:6.1.1'
+//    }
+//}
 
 repositories {
     mavenCentral()
@@ -117,7 +117,7 @@ dependencies {
         [group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'],
         [group: 'commons-io', name: 'commons-io', version: '2.6'],
         [group: 'org.apache.commons', name: 'commons-compress', version: '1.18'],
-        [group: 'org.xerial.snappy', name: 'snappy-java', version: '1.1.7.3'], 
+        [group: 'org.xerial.snappy', name: 'snappy-java', version: '1.1.7.3'],
         [group: 'org.apache.commons', name: 'commons-jexl', version: '2.1.1'],
         //[group: 'com.github.samtools', name: 'htsjdk', version: '2.19.0'],
         // holding upstream htsjdk back from Maven for this @igvteam jar hack: https://github.com/igvteam/igv/issues/646
@@ -142,14 +142,12 @@ dependencies {
         [group: 'software.amazon.awssdk', name: 'cognitoidentity', version: '2.8.5'],
         [group: 'software.amazon.awssdk', name: 's3', version: '2.8.5'],
         [group: 'software.amazon.awssdk', name: 'sts', version: '2.8.5']
-
     )
 
     testImplementation(
-        fileTree(dir: 'test/lib', include: '*.jar')
+            fileTree(dir: 'test/lib', include: '*.jar')
     )
 }
-
 
 
 processResources {
