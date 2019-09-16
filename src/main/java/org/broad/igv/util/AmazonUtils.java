@@ -17,7 +17,6 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.cognitoidentity.CognitoIdentityClient;
 import software.amazon.awssdk.services.cognitoidentity.CognitoIdentityClientBuilder;
 import software.amazon.awssdk.services.cognitoidentity.model.*;
-import software.amazon.awssdk.services.sts.auth.StsAssumeRoleWithWebIdentityCredentialsProvider;
 import software.amazon.awssdk.services.sts.model.AssumeRoleWithWebIdentityRequest;
 import software.amazon.awssdk.services.sts.StsClient;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -25,7 +24,6 @@ import software.amazon.awssdk.services.s3.model.*;
 import software.amazon.awssdk.services.s3.paginators.ListObjectsV2Iterable;
 import software.amazon.awssdk.services.sts.model.AssumeRoleWithWebIdentityResponse;
 import software.amazon.awssdk.services.sts.model.Credentials;
-import software.amazon.awssdk.utils.http.SdkHttpUtils;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -34,11 +32,8 @@ import java.net.URI;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class AmazonUtils {
@@ -133,15 +128,15 @@ public class AmazonUtils {
         GetOpenIdTokenRequest.Builder openidrequest = GetOpenIdTokenRequest.builder().logins(logins).identityId(idResult.identityId());
         GetOpenIdTokenResponse openId = cognitoIdentityClient.getOpenIdToken(openidrequest.build());
 
-        // XXX: Hack: use part of the Enhanced (simplifed) authflow just to get access to idPoolRoleArn :-!!!
-        GetCredentialsForIdentityRequest.Builder authedIds = GetCredentialsForIdentityRequest.builder();
-        authedIds.identityId(idResult.identityId()).logins(logins);
-        GetCredentialsForIdentityResponse authedRes = cognitoIdentityClient.getCredentialsForIdentity(authedIds.build());
-
-        StaticCredentialsProvider tempStaticCredsProviderForIdPoolRoleArnGetting = StaticCredentialsProvider.create(AwsBasicCredentials.create(authedRes.credentials().accessKeyId(), authedRes.credentials().secretKey()));
-        AwsRequestOverrideConfiguration tempCreds = AwsRequestOverrideConfiguration.builder().credentialsProvider(tempStaticCredsProviderForIdPoolRoleArnGetting).build();
-
-        GetIdentityPoolRolesRequest req = GetIdentityPoolRolesRequest.builder().identityPoolId(federatedPoolId).overrideConfiguration(tempCreds).build();
+//        // XXX: Hack: use part of the Enhanced (simplifed) authflow just to get access to idPoolRoleArn :-!!!
+//        GetCredentialsForIdentityRequest.Builder authedIds = GetCredentialsForIdentityRequest.builder();
+//        authedIds.identityId(idResult.identityId()).logins(logins);
+//        GetCredentialsForIdentityResponse authedRes = cognitoIdentityClient.getCredentialsForIdentity(authedIds.build());
+//
+//        StaticCredentialsProvider tempStaticCredsProviderForIdPoolRoleArnGetting = StaticCredentialsProvider.create(AwsBasicCredentials.create(authedRes.credentials().accessKeyId(), authedRes.credentials().secretKey()));
+//        AwsRequestOverrideConfiguration tempCreds = AwsRequestOverrideConfiguration.builder().credentialsProvider(tempStaticCredsProviderForIdPoolRoleArnGetting).build();
+//
+//        GetIdentityPoolRolesRequest req = GetIdentityPoolRolesRequest.builder().identityPoolId(federatedPoolId).overrideConfiguration(tempCreds).build();
 
         // XXX: Missing Authentication Token (Service: CognitoIdentity, Status Code: 400
         String idPoolRoleArn = cognitoIdentityClient.getIdentityPoolRoles(req).roles().get("authenticated");
