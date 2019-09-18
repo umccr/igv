@@ -104,6 +104,7 @@ public class AmazonUtils {
                                                          .replace("\"", "");
         String email = payload.get("email").getAsString();
         String federatedPoolId = igv_oauth_conf.get("aws_cognito_fed_pool_id").getAsString();
+        String cognitoRoleARN = igv_oauth_conf.get("aws_cognito_role_arn").getAsString();
 
         HashMap<String, String> logins = new HashMap<>();
         logins.put(idProvider, idTokenStr);
@@ -134,7 +135,7 @@ public class AmazonUtils {
 
         AssumeRoleWithWebIdentityRequest.Builder webidrequest = AssumeRoleWithWebIdentityRequest.builder().webIdentityToken(openId.token())
                                                                                                           .roleSessionName(email)
-                                                                                                          .roleArn("<HARDCODED_ARN>");
+                                                                                                          .roleArn(cognitoRoleARN);
 
         AssumeRoleWithWebIdentityResponse stsClientResponse = StsClient.builder().credentialsProvider(anoCredProv)
                                                                                  .region(getAWSREGION())
