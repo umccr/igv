@@ -40,4 +40,9 @@ module org.igv {
     requires software.amazon.awssdk.services.sts;
     requires software.amazon.awssdk.http;
     requires software.amazon.awssdk.utils;
+
+    // AWS CDK
+    requires core;
+    requires cognito;
+    requires s3;
 }

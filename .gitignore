@@ -19,3 +19,7 @@ out/
 *.bam
 *.csi.gz
 *.sai
+# CDK asset staging directory
+.cdk.staging
+cdk.out
+target
