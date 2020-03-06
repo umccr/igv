@@ -400,6 +400,12 @@ task fullJar(type: Jar, dependsOn: jar) {
     }
 }
 
+task awscdk() {
+    application {
+        mainClassName = 'org.umccr.awscdkIGVAmazonCognitoApp'
+    }
+}
+
 //build.dependsOn createDistZip,createLinuxDistZip,createMacDistZip,createMacAppDistZip
 
 //if (!makensisCommand == "" && !signcodeCommand == "") {

@@ -1,3 +1,3 @@
 {
-  "app": "gradlew run -Dexec.mainClass=org.umccr.awscdk.IGVAmazonCognitoApp"
+  "app": "./gradlew awscdk"
 }
