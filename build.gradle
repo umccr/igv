@@ -400,9 +400,10 @@ task fullJar(type: Jar, dependsOn: jar) {
     }
 }
 
-task awscdk() {
+task awscdk(type: JavaExec) {
     application {
-        mainClassName = 'org.umccr.awscdkIGVAmazonCognitoApp'
+        classpath = sourceSets.main.runtimeClasspath
+        main = 'org.umccr.awscdk.IGVAmazonCognitoApp'
     }
 }
 

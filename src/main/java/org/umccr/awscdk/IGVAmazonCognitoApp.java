@@ -5,7 +5,7 @@ import software.amazon.awscdk.core.App;
 public final class IGVAmazonCognitoApp {
     public static void main(final String[] args) {
         App app = new App();
-        new IGVAmazonCognitoStack(app, "IGV Cognito Stack");
+        new IGVAmazonCognitoStack(app, "IGVCognitoStack");
         app.synth();
     }
 }
