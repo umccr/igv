@@ -1,3 +1,6 @@
 {
-  "app": "./gradlew awscdk"
+  "app": "./gradlew awscdk",
+  "context": {
+	  "s3bucket": "my_igv_bucket"
+  }
 }

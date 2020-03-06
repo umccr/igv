@@ -1,7 +1,7 @@
 package org.umccr.awscdk;
 
-import com.google.gson.JsonObject;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import software.amazon.awscdk.core.Construct;
 import software.amazon.awscdk.core.Stack;
@@ -12,8 +12,11 @@ import software.amazon.awscdk.services.cognito.UserPoolClient;
 
 import software.amazon.awscdk.services.cognito.CfnIdentityPool;
 
+import software.amazon.awscdk.services.s3.Bucket;
+
 public class IGVAmazonCognitoStack extends Stack {
-    String awsRegion;
+    String awsRegion = this.getRegion();
+    String providedS3Bucket;
 
     String userPoolClientID;
     String userPoolClientSecret;
@@ -31,29 +34,24 @@ public class IGVAmazonCognitoStack extends Stack {
     public IGVAmazonCognitoStack(final Construct parent, final String id, final StackProps props) {
         super(parent, id, props);
 
-        // 0. Determine which bucket(s) will be holding BAMs... create them for the user?
-        //Bucket.Builder.create(this, "IGV Create bucket that will hold BAM/VCF files");
-        //Bucket.fromBucketName(this, "IGV User Bucket (Bring Your Own)", props.providedBucket);
+        providedS3Bucket = this.getNode().tryGetContext("s3bucket").toString();
+        System.out.println(Bucket.fromBucketName(this, "IgvS3BucketBYO", providedS3Bucket).getBucketName());
 
-        // 1. Create UserPool
-        // 2. Get clientID and clientSecret
-
-        // 2. Create Identity Pool
         // 4. Set Allowed OAuth scopes to email and profile?
         // N. Show the admin which URL or oauth-config.json.gz to deploy
-        //XXX: awsRegion = props.region(); // Can this be determined dynamically from the CDK client?
 
         final UserPool userPool = UserPool.Builder.create(this, "IGV User Pool").build();
-        final UserPoolClient userPoolClient = UserPoolClient.Builder.create(this, "IGV User Pool Client").build();
+        final UserPoolClient userPoolClient = UserPoolClient.Builder.create(this, "IGV User Pool Client").userPool(userPool).build();
 
         userPoolClientID = userPoolClient.getUserPoolClientId();
         userPoolClientSecret = userPoolClient.getUserPoolClientClientSecret();
         userPoolID = userPool.getUserPoolId();
         userPoolARN = userPool.getUserPoolArn();
 
+        // XXX: UserPool created with ID: ${Token[TOKEN.25]} and ARN: ${Token[TOKEN.22]}
         System.out.println("UserPool created with ID: "+userPoolID+" and ARN: "+userPoolARN);
 
-        final CfnIdentityPool identityPool = CfnIdentityPool.Builder.create(this, "IGV Identity Pool").build();
+        final CfnIdentityPool identityPool = CfnIdentityPool.Builder.create(this, "IGV Identity Pool").allowUnauthenticatedIdentities(false).build();
 
         identityPoolName = identityPool.getIdentityPoolName();
         //identityPool.setCognitoIdentityProviders();
@@ -86,11 +84,11 @@ public class IGVAmazonCognitoStack extends Stack {
         oauthConfig.addProperty("auth_provider", "Amazon");
         oauthConfig.addProperty("auth_provider_x509_cert_url", "https://www.googleapis.com/oauth2/v1/certs");
 
-        //        final String[] redirectURIs = {"http://localhost:60151/oauthCallback"};
-        //        JsonArray redirectURIJsonArray = new JsonArray(1);
-        //        redirectURIJsonArray.
-        //        XXX: oauthConfig.addProperty("redirect_uris", ["http://localhost:60151/oauthCallback"]);
+        JsonArray redirectURIJsonArray = new JsonArray(1);
+        redirectURIJsonArray.add("http://localhost:60151/oauthCallback");
+        oauthConfig.addProperty("redirect_uris", redirectURIJsonArray.toString());
 
+        System.out.println(oauthConfig.toString());
         //XXX: JSON serialize oauth-config.json to disk (preferably in .gz format)
     }
 }
