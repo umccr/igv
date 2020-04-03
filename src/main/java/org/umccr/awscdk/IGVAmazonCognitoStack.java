@@ -1,5 +1,6 @@
 package org.umccr.awscdk;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
@@ -13,6 +14,7 @@ import software.amazon.awscdk.services.cognito.UserPoolClient;
 import software.amazon.awscdk.services.cognito.CfnIdentityPool;
 import software.amazon.awscdk.services.s3.Bucket;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class IGVAmazonCognitoStack extends Stack {
@@ -65,12 +67,16 @@ public class IGVAmazonCognitoStack extends Stack {
         userPoolARN = userPool.getUserPoolArn();
 
         // TODO: Choose Google for our IDP of choice at UMCCR... but we might want to parametrize/generalize this
+        JsonObject extIDPCfg = externalIDPConfig();
+        HashMap<String, Object> extIDPCfgMap = new Gson().fromJson(extIDPCfg.toString(), HashMap.class);
+
         final CfnUserPoolIdentityProvider userPoolIDP = CfnUserPoolIdentityProvider.Builder.create(this, "IGV User Pool IDP")
                                                                                            .userPoolId(userPoolID)
-                                                                                            .idpIdentifiers(List.of("Google"))
-                                                                                        .providerName("Google")
-                                                                                        .providerType("Google")
-                                                                                        .build();
+                                                                                           .idpIdentifiers(List.of("Google"))
+                                                                                           .providerName("Google")
+                                                                                           .providerType("Google")
+                                                                                           .providerDetails(extIDPCfgMap)
+                                                                                           .build();
 
 
         // XXX: UserPool created with ID: ${Token[TOKEN.25]} and ARN: ${Token[TOKEN.22]}
@@ -86,6 +92,20 @@ public class IGVAmazonCognitoStack extends Stack {
         generateClientOauthConfig(userPoolClientID, userPoolClientSecret,
                                   identityPoolName, userPoolID, cognitoRoleARN,
                                   awsRegion, cognitoEndpointName);
+    }
+
+    private JsonObject externalIDPConfig() {
+        JsonObject ExternalIDPConfig = new JsonObject();
+        JsonArray scopes = new JsonArray(2);
+
+        ExternalIDPConfig.addProperty("client_id", "FOOOO");
+        ExternalIDPConfig.addProperty("client_secret", "BARSECRET");
+
+        scopes.add("email");
+        scopes.add("profile");
+        ExternalIDPConfig.addProperty("authorize_scopes", scopes.toString());
+
+        return ExternalIDPConfig;
     }
 
     private void generateClientOauthConfig(String clientID, String clientSecret,
