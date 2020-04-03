@@ -51,7 +51,9 @@ public class IGVAmazonCognitoStack extends Stack {
         // XXX: UserPool created with ID: ${Token[TOKEN.25]} and ARN: ${Token[TOKEN.22]}
         System.out.println("UserPool created with ID: "+userPoolID+" and ARN: "+userPoolARN);
 
-        final CfnIdentityPool identityPool = CfnIdentityPool.Builder.create(this, "IGV Identity Pool").allowUnauthenticatedIdentities(false).build();
+        final CfnIdentityPool identityPool = CfnIdentityPool.Builder.create(this, "IGV Identity Pool")
+                                                                    .allowUnauthenticatedIdentities(true)
+                                                                    .build();
 
         identityPoolName = identityPool.getIdentityPoolName();
         //identityPool.setCognitoIdentityProviders();
