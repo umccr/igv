@@ -20,7 +20,7 @@ import java.util.List;
 
 public class IGVAmazonCognitoStack extends Stack {
     String awsRegion = this.getRegion();
-    String providedS3Bucket;
+    String providedS3Bucket; // fetched from cdk.json
 
     // General Cognito attributes
     String userPoolDomain="igvdomainnameneedsparametrization";
@@ -45,20 +45,23 @@ public class IGVAmazonCognitoStack extends Stack {
         providedS3Bucket = this.getNode().tryGetContext("s3bucket").toString();
         System.out.println(Bucket.fromBucketName(this, "IgvS3BucketBYO", providedS3Bucket).getBucketName());
 
-        // TODO: Those settings are in urgent need of programmatic modification (bad defaults). Most do not seem to be exposed as CloudFormation (n)or CDK constructs.
+        // TODO: Set the User Pool attributes below programmatically, unclear from Cloudformation docs, missing methods on CDK.
+        // TODO: Related resources of Cognito CFN deployment:
+        //      TODO: https://gist.github.com/singledigit/2c4d7232fa96d9e98a3de89cf6ebe7a5
+        //      TODO: https://stackoverflow.com/questions/45645829/list-of-cloudformation-cognitoevents-for-cognito-identity-pool-creation
         //
         // General settings -> MFA and verifications:
-        //                                          -> "How will a user be able to recover their account?": "None – users will have to contact an administrator to reset their passwords". CFN==NotFound
-        //                                          -> Set MFA and verification option to: "None – users will have to contact an administrator to reset their passwords". CFN==NotFound
+        //                                          -> "How will a user be able to recover their account?": "None – users will have to contact an administrator to reset their passwords". CFN==MfaConfiguration?, CDK==NotFound
+        //                                          -> Set MFA and verification option to: "None – users will have to contact an administrator to reset their passwords". CFN=="AutoVerifiedAttributes?", CDK==NotFound
         //                  -> Advanced Security:
         //                                          -> "Do you want to enable advanced security features for this user pool?": "Audit Only". CFN=="UserPoolAddOns", CDK==NotFound?
         //                  -> Devices:
         //                                          -> "Do you want to remember your user's devices?": Always. CFN==NotFound, CDK==NotFound
         // App Integration -> App client settings:
-        //                                          -> "Enabled Identity Providers": Check "Google" box. CFN==NotFound
-        //                                          -> "Allowed OAuth Flows": "Authorization code grant" only. CDK==NotFound
-        //                                          -> "Allowed OAuth scopes": email and profile only. CFN==NotFound
-        //                                          -> "Prevent User Existence Errors": Enabled. CFN==NotFound.
+        //                                          -> "Enabled Identity Providers": "Google" checkbox. CFN==NotFound, CDK==NotFound
+        //                                          -> "Allowed OAuth Flows": "Authorization code grant" checkbox. CFN==NotFound, CDK==NotFound
+        //                                          -> "Allowed OAuth scopes": "email" and "profile" checkboxes. CFN==NotFound, CDK==NotFound
+        //                                          -> "Prevent User Existence Errors": Enabled. CFN==NotFound, CDK==NotFound
 
         final UserPool userPool = UserPool.Builder.create(this, "IGV User Pool")
                                                   .selfSignUpEnabled(false)
@@ -81,15 +84,12 @@ public class IGVAmazonCognitoStack extends Stack {
                 .build();
 
         // TODO: Choose Google for our IDP of choice at UMCCR... but we might want to parametrize/generalize this
-        JsonObject extIDPCfg = externalIDPConfig();
-        HashMap<String, Object> extIDPCfgMap = new Gson().fromJson(extIDPCfg.toString(), HashMap.class);
-
         final CfnUserPoolIdentityProvider userPoolIDP = CfnUserPoolIdentityProvider.Builder.create(this, "IGV User Pool IDP")
                                                                                            .userPoolId(userPoolID)
                                                                                            .idpIdentifiers(List.of("Google"))
                                                                                            .providerName("Google")
                                                                                            .providerType("Google")
-                                                                                           .providerDetails(extIDPCfgMap)
+                                                                                           .providerDetails(externalIDPConfig())
                                                                                            .build();
 
 
@@ -108,18 +108,19 @@ public class IGVAmazonCognitoStack extends Stack {
                                   awsRegion, cognitoEndpointName);
     }
 
-    private JsonObject externalIDPConfig() {
-        JsonObject ExternalIDPConfig = new JsonObject();
+    private HashMap externalIDPConfig() {
+        JsonObject externalIDPConfig = new JsonObject();
         JsonArray scopes = new JsonArray(2);
 
-        ExternalIDPConfig.addProperty("client_id", "FOOOO");
-        ExternalIDPConfig.addProperty("client_secret", "BARSECRET");
+        externalIDPConfig.addProperty("client_id", "FOOOO");
+        externalIDPConfig.addProperty("client_secret", "BARSECRET");
 
         scopes.add("email");
         scopes.add("profile");
-        ExternalIDPConfig.addProperty("authorize_scopes", scopes.toString());
+        externalIDPConfig.addProperty("authorize_scopes", scopes.toString());
+        HashMap<String, Object> extIDPCfgMap = new Gson().fromJson(externalIDPConfig.toString(), HashMap.class);
 
-        return ExternalIDPConfig;
+        return extIDPCfgMap;
     }
 
     private void generateClientOauthConfig(String clientID, String clientSecret,
