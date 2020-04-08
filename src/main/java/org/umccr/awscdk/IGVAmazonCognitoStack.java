@@ -9,9 +9,7 @@ import software.amazon.awscdk.core.Stack;
 import software.amazon.awscdk.core.StackProps;
 
 import software.amazon.awscdk.services.cognito.*;
-import software.amazon.awscdk.services.cognito.CfnUserPoolProps;
 import software.amazon.awscdk.services.s3.Bucket;
-import software.amazon.awssdk.services.s3.model.MFADelete;
 
 import java.util.HashMap;
 import java.util.List;
@@ -70,17 +68,16 @@ public class IGVAmazonCognitoStack extends Stack {
         final UserPoolClient userPoolClient = UserPoolClient.Builder.create(this, "IGV User Pool Client")
                                                                     .userPool(userPool)
                                                                     .userPoolClientName("IGV User Pool Client")
-                                                                    .generateSecret(true).enabledAuthFlows()
+                                                                    .generateSecret(true)
                                                                     .build();
 
 
         userPoolClientID = userPoolClient.getUserPoolClientId();
-        userPoolClientSecret = userPoolClient.getUserPoolClientClientSecret();
+        // XXX: Not retrievable anymore: https://github.com/aws/aws-cdk/issues/7225
+        //userPoolClientSecret = userPoolClient.getUserPoolClientClientSecret();
         userPoolID = userPool.getUserPoolId();
         userPoolARN = userPool.getUserPoolArn();
 
-
-        final CfnUserPoolProps cfnUserPoolProps = CfnUserPoolProps.
         final CfnUserPoolDomain cfnUserPoolDomain = CfnUserPoolDomain.Builder.create(this, "IGV User Pool Domain")
                 .domain(userPoolDomain)
                 .userPoolId(userPoolID)
