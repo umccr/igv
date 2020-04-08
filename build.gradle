@@ -137,9 +137,9 @@ dependencies {
         [group: 'software.amazon.awssdk', name: 's3', version: '2.8.5'],
 
         // Amazon server side dependencies (used to deploy the serverless Amazon IGV backend)
-        [group: 'software.amazon.awscdk', name: 'core', version: '1.26.0'],
-        [group: 'software.amazon.awscdk', name: 'cognito', version: '1.26.0'],
-        [group: 'software.amazon.awscdk', name: 's3', version: '1.26.0'],
+        [group: 'software.amazon.awscdk', name: 'core', version: '1.31.0'],
+        [group: 'software.amazon.awscdk', name: 'cognito', version: '1.31.0'],
+        [group: 'software.amazon.awscdk', name: 's3', version: '1.31.0'],
 
     )
 
