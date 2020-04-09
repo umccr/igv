@@ -34,8 +34,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
-import org.broad.igv.event.IGVEventBus;
-import org.broad.igv.event.DataLoadedEvent;
+import org.broad.igv.event.IGVEventObserver;
 
 /**
  * The Kinesis Producer Library (KPL) excels at handling large numbers of small
@@ -64,10 +63,9 @@ import org.broad.igv.event.DataLoadedEvent;
  * @author chaodeng
  *
  */
-public class EventsKinesisProducer {
+public class EventsKinesisProducer implements IGVEventObserver {
 
     private static Logger log = Logger.getLogger(EventsKinesisProducer.class);
-
     private static final ScheduledExecutorService EXECUTOR = Executors.newScheduledThreadPool(1);
     
     /**
@@ -75,8 +73,8 @@ public class EventsKinesisProducer {
      */
     private static final String TIMESTAMP = Long.toString(System.currentTimeMillis());
     
-    public static void main(String[] args) throws Exception {
-        final EventsKinesisProducerConfig config = new EventsKinesisProducerConfig(args);
+    public void IGVEvent2Kinesis(Object event, String[] kinesisCfg) throws Exception {
+        final EventsKinesisProducerConfig config = new EventsKinesisProducerConfig(kinesisCfg);
 
         log.info(String.format("Stream name: %s Region: %s secondsToRun %d",config.getStreamName(), config.getRegion(),
                 config.getSecondsToRun()));
@@ -126,7 +124,8 @@ public class EventsKinesisProducer {
         final Runnable putOneRecord = () -> {
             //ByteBuffer data = Utils.generateData(sequenceNumber.get(), config.getDataSize());
             // XXX: Establish a stable/extensible Record/event fields
-            ByteBuffer data = ByteBuffer.wrap("{ \"example_igv_json\": \"IGVEventBusEvent\" }".getBytes());
+            String eventPayload = "{ \"data\": "+event.toString()+"}";
+            ByteBuffer data = ByteBuffer.wrap(eventPayload.getBytes());
             // TIMESTAMP is our partition key
             ListenableFuture<UserRecordResult> f =
                     producer.addUserRecord(config.getStreamName(), TIMESTAMP, "XXXrandomhashkeyhere", data);
@@ -223,5 +222,15 @@ public class EventsKinesisProducer {
                 }
             }
         }, 0, 1, TimeUnit.MILLISECONDS);
+    }
+
+    @Override
+    public void receiveEvent(Object event) {
+        String[] kinesisConfig = {"region", "ap-southeast-2", "streamName", "IGVEvents"};
+            try {
+                IGVEvent2Kinesis(event, kinesisConfig);
+            } catch (Exception e) {
+                e.getMessage();
+            }
     }
 }
