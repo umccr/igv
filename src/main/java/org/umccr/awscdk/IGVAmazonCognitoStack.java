@@ -56,7 +56,7 @@ public class IGVAmazonCognitoStack extends Stack {
         // App Integration -> App client settings:
         //                                          -> "Enabled Identity Providers": "Google" checkbox. CFN==NotFound, CDK==NotFound
         //                                          -> "Allowed OAuth Flows": "Authorization code grant" checkbox. CFN==NotFound, CDK==NotFound
-        //                                          -> "Allowed OAuth scopes": "email" and "profile" checkboxes. CFN==NotFound, CDK==NotFound
+        //                                          -> "Allowed OAuth scopes": "email", "openid" and "profile" checkboxes. CFN==NotFound, CDK==NotFound
         //                                          -> "Prevent User Existence Errors": Enabled. CFN==NotFound, CDK==NotFound
 
         final UserPool userPool = UserPool.Builder.create(this, "IGV User Pool")
