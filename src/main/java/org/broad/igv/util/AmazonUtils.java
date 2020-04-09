@@ -110,6 +110,14 @@ public class AmazonUtils {
         String federatedPoolId = igv_oauth_conf.get("aws_cognito_fed_pool_id").getAsString();
         String cognitoRoleARN = igv_oauth_conf.get("aws_cognito_role_arn").getAsString();
 
+        // Try to see if there's Kinesis endpoints defined for analytics purposes
+        // XXX: Determine if we really need to provision config at all, defaults look great anyway
+//        try {
+//
+//        } catch (NullPointerException npe) {
+//
+//        }
+
         HashMap<String, String> logins = new HashMap<>();
         logins.put(idProvider, idTokenStr);
 
@@ -254,7 +262,7 @@ public class AmazonUtils {
         // 2. In the process of being restored.
         // 3. Restored
         //
-        // This is important because after restoration the object mantains the Tier (DEEP_ARCHIVE) instead of
+        // This is important because after restoration the object maintains the Tier (DEEP_ARCHIVE) instead of
         // transitioning that attribute to STANDARD, we must look at head_object response for the "Restore"
         // attribute.
         //
