@@ -1,10 +1,9 @@
 package org.broad.igv.util;
 
 import com.google.gson.JsonObject;
-import htsjdk.samtools.util.Tuple;
-import org.apache.commons.lang3.tuple.Triple;
 import org.apache.log4j.Logger;
 import org.broad.igv.Globals;
+import org.broad.igv.aws.EventsKinesisProducer;
 import org.broad.igv.aws.IGVS3Object;
 import org.broad.igv.google.OAuthProvider;
 import org.broad.igv.google.OAuthUtils;
@@ -50,6 +49,7 @@ public class AmazonUtils {
     private static Region AWSREGION;
     private static Map<String, String> locatorTos3PresignedMap = new HashMap<>();
     private static JsonObject CognitoConfig;
+    private static EventsKinesisProducer KinesisEvents;
 
     public static void setCognitoConfig(JsonObject json) {
         CognitoConfig = json;
@@ -67,6 +67,9 @@ public class AmazonUtils {
         try {
             if (GetCognitoConfig().get("auth_provider").getAsString().contains("Amazon")) {
                 log.info("AWS configuration found. AWS support enabled under 'Amazon' menu");
+                // XXX: Check if kinesis event processing is wanted/required/disabled here via oauth-config.json and/or
+                // preferences/UI level settings.
+                KinesisEvents = new EventsKinesisProducer();
                 OauthAWSConfigured = true;
             } else {
                 log.info("AWS configuration not found.");

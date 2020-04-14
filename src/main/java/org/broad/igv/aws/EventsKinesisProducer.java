@@ -34,7 +34,8 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
-import org.broad.igv.event.IGVEventObserver;
+import org.broad.igv.event.*;
+import org.broad.igv.ui.panel.FrameManager;
 
 /**
  * The Kinesis Producer Library (KPL) excels at handling large numbers of small
@@ -72,8 +73,18 @@ public class EventsKinesisProducer implements IGVEventObserver {
      * Timestamp we'll attach to every record
      */
     private static final String TIMESTAMP = Long.toString(System.currentTimeMillis());
-    
+
+    public EventsKinesisProducer() {
+        // XXX: Subscribe to all events we are interested in
+        log.info("AWS event tracking configuration found. Subscribing to IGV event bus");
+        IGVEventBus.getInstance().subscribe(GenomeChangeEvent.class, this);
+        IGVEventBus.getInstance().subscribe(DataLoadedEvent.class, this);
+        IGVEventBus.getInstance().subscribe(ZoomChange.class, this);
+        IGVEventBus.getInstance().subscribe(FrameManager.ChangeEvent.class, this);
+    }
+
     public void IGVEvent2Kinesis(Object event, String[] kinesisCfg) throws Exception {
+
         final EventsKinesisProducerConfig config = new EventsKinesisProducerConfig(kinesisCfg);
 
         log.info(String.format("Stream name: %s Region: %s secondsToRun %d",config.getStreamName(), config.getRegion(),
@@ -226,6 +237,8 @@ public class EventsKinesisProducer implements IGVEventObserver {
 
     @Override
     public void receiveEvent(Object event) {
+        log.info("Kinesis analytics event received: "+event.toString());
+        // XXX: Take those from oauth-config.json provisioned vars
         String[] kinesisConfig = {"region", "ap-southeast-2", "streamName", "IGVEvents"};
             try {
                 IGVEvent2Kinesis(event, kinesisConfig);
