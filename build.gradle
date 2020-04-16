@@ -137,8 +137,8 @@ dependencies {
         [group: 'software.amazon.awssdk', name: 's3', version: '2.8.5'],
         // Kinesis API is too low level for this usecase, using the KPL instead for convenience.
         // [group: 'software.amazon.awssdk', name: 'kinesis', version: '2.8.5'],
-        [group: 'com.amazonaws', name: 'amazon-kinesis-producer', version: '0.14.0'],
-        [group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'],
+        // Do not upgrade to 0.14.x, since: "Windows platform will be unsupported going forward for this library."
+        [group: 'com.amazonaws', name: 'amazon-kinesis-producer', version: '0.13.1'],
     )
 
     testImplementation(

@@ -25,11 +25,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-import com.amazonaws.services.kinesis.producer.KinesisProducer;
+import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
+import com.amazonaws.services.kinesis.producer.*;
 import org.apache.log4j.Logger;
-import com.amazonaws.services.kinesis.producer.Attempt;
-import com.amazonaws.services.kinesis.producer.UserRecordFailedException;
-import com.amazonaws.services.kinesis.producer.UserRecordResult;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -68,6 +66,8 @@ public class EventsKinesisProducer implements IGVEventObserver {
 
     private static Logger log = Logger.getLogger(EventsKinesisProducer.class);
     private static final ScheduledExecutorService EXECUTOR = Executors.newScheduledThreadPool(1);
+    private static final int secondsToRun = 5;
+    private static final int maxEventsPerSecond = 10;
     
     /**
      * Timestamp we'll attach to every record
@@ -83,16 +83,13 @@ public class EventsKinesisProducer implements IGVEventObserver {
         IGVEventBus.getInstance().subscribe(FrameManager.ChangeEvent.class, this);
     }
 
-    public void IGVEvent2Kinesis(Object event, String[] kinesisCfg) throws Exception {
+    public void IGVEvent2Kinesis(Object event, String streamName) throws Exception {
 
-        final EventsKinesisProducerConfig config = new EventsKinesisProducerConfig(kinesisCfg);
+        final KinesisProducerConfiguration config = new KinesisProducerConfiguration();
+        config.setRegion("ap-southeast-2");
+        config.setCredentialsProvider(new DefaultAWSCredentialsProviderChain());
 
-        log.info(String.format("Stream name: %s Region: %s secondsToRun %d",config.getStreamName(), config.getRegion(),
-                config.getSecondsToRun()));
-        log.info(String.format("Will attempt to run the KPL at %f MB/s...",(config.getDataSize() * config
-                .getRecordsPerSecond())/(1000000.0)));
-
-        final KinesisProducer producer = new KinesisProducer(config.transformToKinesisProducerConfiguration());
+        final KinesisProducer producer = new KinesisProducer(config);
         
         // The monotonically increasing sequence number we will put in the data of each record
         final AtomicLong sequenceNumber = new AtomicLong(0);
@@ -138,8 +135,9 @@ public class EventsKinesisProducer implements IGVEventObserver {
             String eventPayload = "{ \"data\": "+event.toString()+"}";
             ByteBuffer data = ByteBuffer.wrap(eventPayload.getBytes());
             // TIMESTAMP is our partition key
+            log.info("PutOneRecord called, sending: "+event.toString());
             ListenableFuture<UserRecordResult> f =
-                    producer.addUserRecord(config.getStreamName(), TIMESTAMP, "XXXrandomhashkeyhere", data);
+                    producer.addUserRecord(streamName, TIMESTAMP, "XXXrandomhashkeyhere", data);
             Futures.addCallback(f, callback, callbackThreadPool);
         };
         
@@ -148,7 +146,7 @@ public class EventsKinesisProducer implements IGVEventObserver {
             @Override
             public void run() {
                 long put = sequenceNumber.get();
-                long total = config.getRecordsPerSecond() * config.getSecondsToRun();
+                long total = 10 * 5;
                 double putPercent = 100.0 * put / total;
                 long done = completed.get();
                 double donePercent = 100.0 * done / total;
@@ -157,19 +155,16 @@ public class EventsKinesisProducer implements IGVEventObserver {
                         put, total, putPercent, done, donePercent));
             }
         }, 1, 1, TimeUnit.SECONDS);
-        
+
         // Kick off the puts
-        log.info(String.format(
-                "Starting puts... will run for %d seconds at %d records per second", config.getSecondsToRun(),
-                config.getRecordsPerSecond()));
-        executeAtTargetRate(EXECUTOR, putOneRecord, sequenceNumber, config.getSecondsToRun(),
-                config.getRecordsPerSecond());
+        log.info(String.format("Starting puts... will run for %d seconds at %d records per second", 5, 10));
+        executeAtTargetRate(EXECUTOR, putOneRecord, sequenceNumber, 5,10);
         
         // Wait for puts to finish. After this statement returns, we have
         // finished all calls to putRecord, but the records may still be
         // in-flight. We will additionally wait for all records to actually
         // finish later.
-        EXECUTOR.awaitTermination(config.getSecondsToRun() + 1, TimeUnit.SECONDS);
+        EXECUTOR.awaitTermination(5 + 1, TimeUnit.SECONDS);
         
         // If you need to shutdown your application, call flushSync() first to
         // send any buffered records. This method will block until all records
@@ -191,7 +186,7 @@ public class EventsKinesisProducer implements IGVEventObserver {
      * Executes a function N times per second for M seconds with a
      * ScheduledExecutorService. The executor is shutdown at the end. This is
      * more precise than simply using scheduleAtFixedRate.
-     * 
+     *
      * @param exec
      *            Executor
      * @param task
@@ -217,7 +212,7 @@ public class EventsKinesisProducer implements IGVEventObserver {
             public void run() {
                 double secondsRun = (System.nanoTime() - startTime) / 1e9;
                 double targetCount = Math.min(durationSeconds, secondsRun) * ratePerSecond;
-                
+
                 while (counter.get() < targetCount) {
                     counter.getAndIncrement();
                     try {
@@ -227,7 +222,7 @@ public class EventsKinesisProducer implements IGVEventObserver {
                         System.exit(1);
                     }
                 }
-                
+
                 if (secondsRun >= durationSeconds) {
                     exec.shutdown();
                 }
@@ -238,10 +233,9 @@ public class EventsKinesisProducer implements IGVEventObserver {
     @Override
     public void receiveEvent(Object event) {
         log.info("Kinesis analytics event received: "+event.toString());
-        // XXX: Take those from oauth-config.json provisioned vars
-        String[] kinesisConfig = {"region", "ap-southeast-2", "streamName", "IGVEvents"};
+        // XXX: Take kinesis configuration from oauth-config.json provisioned vars
             try {
-                IGVEvent2Kinesis(event, kinesisConfig);
+                IGVEvent2Kinesis(event, "igvevents");
             } catch (Exception e) {
                 e.getMessage();
             }
