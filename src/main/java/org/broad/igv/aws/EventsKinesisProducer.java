@@ -74,6 +74,7 @@ public class EventsKinesisProducer implements IGVEventObserver {
     private static final int secondsToRun = 5;
     private static final int maxEventsPerSecond = 10;
     private static final Random RANDOM = new Random();
+    private static KinesisProducer producer;
 
     /**
      * Timestamp we'll attach to every record
@@ -87,16 +88,17 @@ public class EventsKinesisProducer implements IGVEventObserver {
         IGVEventBus.getInstance().subscribe(DataLoadedEvent.class, this);
         IGVEventBus.getInstance().subscribe(ZoomChange.class, this);
         IGVEventBus.getInstance().subscribe(FrameManager.ChangeEvent.class, this);
+
+        log.info("Setting up Kinesis provider...");
+        final KinesisProducerConfiguration config = new KinesisProducerConfiguration();
+        config.setRegion("ap-southeast-2");
+        // XXX: Needs to consume Cognito's CredentialProviderChain?
+        config.setCredentialsProvider(new DefaultAWSCredentialsProviderChain());
+        final KinesisProducer producer = new KinesisProducer(config);
+        this.producer = producer;
     }
 
     public void IGVEvent2Kinesis(Object event, String streamName) throws Exception {
-
-        final KinesisProducerConfiguration config = new KinesisProducerConfiguration();
-        config.setRegion("ap-southeast-2");
-        config.setCredentialsProvider(new DefaultAWSCredentialsProviderChain());
-
-        final KinesisProducer producer = new KinesisProducer(config);
-        
         // The monotonically increasing sequence number we will put in the data of each record
         final AtomicLong sequenceNumber = new AtomicLong(0);
         
@@ -138,6 +140,8 @@ public class EventsKinesisProducer implements IGVEventObserver {
         final Runnable putOneRecord = () -> {
             //ByteBuffer data = Utils.generateData(sequenceNumber.get(), config.getDataSize());
             // XXX: Establish a stable/extensible Record/event fields
+            // XXX: Reflect/introspect here or pass clean from receiveEvent?
+            //String eventPayload = "{ \"data\": "+event.getClass().getFields().toString()+"}";
             String eventPayload = "{ \"data\": "+event.toString()+"}";
             ByteBuffer data = ByteBuffer.wrap(eventPayload.getBytes());
             // TIMESTAMP is our partition key
@@ -149,23 +153,20 @@ public class EventsKinesisProducer implements IGVEventObserver {
         };
         
         // This gives us progress updates
-        EXECUTOR.scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                long put = sequenceNumber.get();
-                long total = 10 * 5;
-                double putPercent = 100.0 * put / total;
-                long done = completed.get();
-                double donePercent = 100.0 * done / total;
-                log.info(String.format(
-                        "Put %d of %d so far (%.2f %%), %d have completed (%.2f %%)",
-                        put, total, putPercent, done, donePercent));
-            }
+        EXECUTOR.scheduleAtFixedRate(() -> {
+            long put = sequenceNumber.get();
+            long total = maxEventsPerSecond * secondsToRun;
+            double putPercent = 100.0 * put / total;
+            long done = completed.get();
+            double donePercent = 100.0 * done / total;
+            log.info(String.format(
+                    "Put %d of %d so far (%.2f %%), %d have completed (%.2f %%)",
+                    put, total, putPercent, done, donePercent));
         }, 1, 1, TimeUnit.SECONDS);
 
         // Kick off the puts
-        log.info(String.format("Starting puts... will run for %d seconds at %d records per second", 5, 10));
-        executeAtTargetRate(EXECUTOR, putOneRecord, sequenceNumber, 5,10);
+        log.info(String.format("Starting puts... will run for %d seconds at %d records per second", secondsToRun, maxEventsPerSecond));
+        executeAtTargetRate(EXECUTOR, putOneRecord, sequenceNumber, secondsToRun, maxEventsPerSecond);
         
         // Wait for puts to finish. After this statement returns, we have
         // finished all calls to putRecord, but the records may still be
@@ -242,6 +243,7 @@ public class EventsKinesisProducer implements IGVEventObserver {
         log.info("Kinesis analytics event received: "+event.toString());
         // XXX: Take kinesis configuration from oauth-config.json provisioned vars
             try {
+                // XXX: If event == genomeChange, use event.genome.displayName, aux case/function for every specific event.
                 IGVEvent2Kinesis(event, "igvevents");
             } catch (Exception e) {
                 e.getMessage();
