@@ -18,7 +18,10 @@
 
 package org.broad.igv.aws;
 
+import java.math.BigInteger;
+
 import java.nio.ByteBuffer;
+import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
@@ -34,6 +37,8 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import org.broad.igv.event.*;
 import org.broad.igv.ui.panel.FrameManager;
+
+import static org.apache.commons.math3.stat.ranking.TiesStrategy.RANDOM;
 
 /**
  * The Kinesis Producer Library (KPL) excels at handling large numbers of small
@@ -68,7 +73,8 @@ public class EventsKinesisProducer implements IGVEventObserver {
     private static final ScheduledExecutorService EXECUTOR = Executors.newScheduledThreadPool(1);
     private static final int secondsToRun = 5;
     private static final int maxEventsPerSecond = 10;
-    
+    private static final Random RANDOM = new Random();
+
     /**
      * Timestamp we'll attach to every record
      */
@@ -135,9 +141,10 @@ public class EventsKinesisProducer implements IGVEventObserver {
             String eventPayload = "{ \"data\": "+event.toString()+"}";
             ByteBuffer data = ByteBuffer.wrap(eventPayload.getBytes());
             // TIMESTAMP is our partition key
+            String explicitHashKey = new BigInteger(128, RANDOM).toString(10);
             log.info("PutOneRecord called, sending: "+event.toString());
             ListenableFuture<UserRecordResult> f =
-                    producer.addUserRecord(streamName, TIMESTAMP, "XXXrandomhashkeyhere", data);
+                    producer.addUserRecord(streamName, TIMESTAMP, explicitHashKey, data);
             Futures.addCallback(f, callback, callbackThreadPool);
         };
         
