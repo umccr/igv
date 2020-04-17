@@ -11,6 +11,8 @@ import software.amazon.awscdk.core.StackProps;
 import software.amazon.awscdk.services.cognito.*;
 import software.amazon.awscdk.services.s3.Bucket;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -22,11 +24,13 @@ public class IGVAmazonCognitoStack extends Stack {
     String userPoolDomain="igvdomainnameneedsparametrization";
     String cognitoRoleARN;
     String cognitoEndpointName;
+
     // UserPool attributes
     String userPoolClientID;
     String userPoolClientSecret;
     String userPoolID;
     String userPoolARN;
+
     // IdentityPool attributes
     String identityPoolName;
 
@@ -64,11 +68,25 @@ public class IGVAmazonCognitoStack extends Stack {
                                                   .mfa(Mfa.OFF)
                                                   .build();
 
+        OAuthFlows flows = OAuthFlows.builder().authorizationCodeGrant(true)
+                                               .clientCredentials(false)
+                                               .implicitCodeGrant(false)
+                                               .build();
+        OAuthScope[] scopes = { OAuthScope.EMAIL,
+                                OAuthScope.OPENID,
+                                OAuthScope.PROFILE };
+        String[] callbackUrls = { "http://localhost:60151/oauthCallback" };
+        OAuthSettings oauthsettings = OAuthSettings.builder()
+                                                   .flows(flows)
+                                                   .scopes(List.of(scopes))
+                                                   .callbackUrls(List.of(callbackUrls))
+                                                   .build();
 
         final UserPoolClient userPoolClient = UserPoolClient.Builder.create(this, "IGV User Pool Client")
                                                                     .userPool(userPool)
                                                                     .userPoolClientName("IGV User Pool Client")
                                                                     .generateSecret(true)
+                                                                    .oAuth(oauthsettings)
                                                                     .build();
 
 
